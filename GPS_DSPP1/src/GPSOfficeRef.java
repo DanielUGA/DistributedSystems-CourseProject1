@@ -1,5 +1,6 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 
 public interface GPSOfficeRef extends Remote{
@@ -12,7 +13,7 @@ public interface GPSOfficeRef extends Remote{
 	
 	public String getGPSOfficeName() throws RemoteException;
 	public double[] getGPSOfficeCoordinates() throws RemoteException;
-	public Neighbor[] getNeighbors() throws RemoteException;
-	public void setNeighgors(Neighbor[] offices) throws RemoteException;
+	public List<Neighbor> getNeighbors() throws RemoteException;
+	public void setNeighgors(List<Neighbor> offices) throws RemoteException;
 
 }
