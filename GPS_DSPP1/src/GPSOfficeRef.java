@@ -9,5 +9,10 @@ public interface GPSOfficeRef extends Remote{
 	
 	// called from constructor
 	public void generateNeighborSet() throws RemoteException;
+	
+	public String getGPSOfficeName() throws RemoteException;
+	public double[] getGPSOfficeCoordinates() throws RemoteException;
+	public Neighbor[] getNeighbors() throws RemoteException;
+	public void setNeighgors(Neighbor[] offices) throws RemoteException;
 
 }
