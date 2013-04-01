@@ -1,5 +1,7 @@
+import java.io.Serializable;
 
-public class Neighbor {
+
+public class Neighbor implements Serializable{
 	
 	private GPSOfficeRef gpsOffice;
 	private double distance;
