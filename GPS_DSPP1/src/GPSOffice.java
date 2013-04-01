@@ -50,8 +50,6 @@ public class GPSOffice implements GPSOfficeRef {
 		registry = new RegistryProxy(host, port);
 		UnicastRemoteObject.exportObject(this, 0);
 
-		
-
 		try {
 			registry.bind(name, this);
 		} catch (AlreadyBoundException e) {
@@ -70,7 +68,7 @@ public class GPSOffice implements GPSOfficeRef {
 			}
 			throw e;
 		}
-		
+
 		eventGenerator = new RemoteEventGenerator<GPSOfficeEvent>();
 
 		generateNeighbors();
@@ -81,12 +79,8 @@ public class GPSOffice implements GPSOfficeRef {
 
 	protected void resetNeighborNetwork(GPSOfficeRef gpsOffice, double dist) {
 
+		System.out.println("before");
 		printNeighbors(gpsOffice);
-		try {
-			System.out.println(dist + " vvvv "+gpsOffice.getGPSOfficeName());
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
 
 		try {
 			List<Neighbor> neighbors = gpsOffice.getNeighbors();
@@ -96,6 +90,7 @@ public class GPSOffice implements GPSOfficeRef {
 					Neighbor n = new Neighbor(this, dist);
 					neighbors.add(n);
 					Collections.sort(neighbors, new NeighborComparator());
+					gpsOffice.setNeighbors(neighbors);
 				} else {
 					if (dist < neighbors.get(0).getDistance()) {
 						Neighbor n = new Neighbor(this, dist);
@@ -107,21 +102,25 @@ public class GPSOffice implements GPSOfficeRef {
 						Neighbor n = new Neighbor(this, dist);
 						neighbors.add(2, n);
 					}
+
+					gpsOffice.setNeighbors(new ArrayList<Neighbor>(neighbors
+							.subList(0, 3)));
 				}
 			} else {
 				neighbors = new ArrayList<Neighbor>();
 				Neighbor n = new Neighbor(this, dist);
 				neighbors.add(n);
+				gpsOffice.setNeighbors(neighbors);
 			}
 
-			gpsOffice.setNeighbors(neighbors);
+			
 			registry.rebind(gpsOffice.getGPSOfficeName(), gpsOffice);
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("After reset");
+		System.out.println("after");
 		printNeighbors(gpsOffice);
 
 	}
@@ -132,6 +131,8 @@ public class GPSOffice implements GPSOfficeRef {
 		try {
 			neighbors = gpsOffice.getNeighbors();
 
+			System.out.println("start: Neighbors of "
+					+ gpsOffice.getGPSOfficeName());
 			if (neighbors != null)
 				for (Neighbor n : neighbors) {
 					try {
@@ -141,9 +142,8 @@ public class GPSOffice implements GPSOfficeRef {
 						e.printStackTrace();
 					}
 				}
-			System.out.println("***");
+			System.out.println("end");
 		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -171,17 +171,16 @@ public class GPSOffice implements GPSOfficeRef {
 				final double dist = Math.sqrt(Math.pow((x - gpsOfficeX), 2)
 						+ Math.pow((y - gpsOfficeY), 2));
 
-				
 				// resetting the network
-				Thread t = new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						resetNeighborNetwork(gpsOffice, dist);
-					}
-
-				});
-				t.start();
+				// Thread t = new Thread(new Runnable() {
+				//
+				// @Override
+				// public void run() {
+				resetNeighborNetwork(gpsOffice, dist);
+				// }
+				//
+				// });
+				// t.start();
 				// resetting the network
 
 				Neighbor neighbor = new Neighbor(gpsOffice, dist);
@@ -232,7 +231,7 @@ public class GPSOffice implements GPSOfficeRef {
 	public void setNeighbors(List<Neighbor> offices) throws RemoteException {
 		neighbors = offices;
 	}
-	
+
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener)
 			throws RemoteException {
 		return eventGenerator.addListener(listener);
