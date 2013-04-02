@@ -4,11 +4,12 @@ import java.util.List;
 
 import edu.rit.ds.Lease;
 import edu.rit.ds.RemoteEventListener;
+import edu.rit.ds.registry.NotBoundException;
 
 public interface GPSOfficeRef extends Remote {
 
 	public long checkPackage(long trackingNumber, double x, double y)
-			throws RemoteException;
+			throws RemoteException, NotBoundException, InterruptedException;
 
 	public void forwardPackage(final GPSOfficeRef office, final long trackingNumber, final double x2,
 			final double y2) throws RemoteException;

@@ -102,6 +102,8 @@ public class Customer {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
