@@ -79,6 +79,7 @@ public class Customer {
 												.getGPSOfficeName()
 										+ " office to " + "(" + event.getX()
 										+ "," + event.getY() + ")");
+								System.exit(1);
 							}
 						} catch (RemoteException e) {
 							e.printStackTrace();
