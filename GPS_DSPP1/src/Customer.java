@@ -89,8 +89,6 @@ public class Customer {
 			};
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
-			//listenToOffices();
-
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
 			gpsOffice.addListener(officeListener);
 			trackingNumber = gpsOffice.checkPackage(0l, x, y,officeListener);
@@ -110,26 +108,6 @@ public class Customer {
 			System.out.println("Packet lost");
 			System.exit(1);
 		}
-	}
-
-	private static void listenToOffices() {
-
-		try {
-			List<String> offices = registry.list();
-
-			for (String office : offices) {
-				GPSOfficeRef gpsOffice;
-
-				gpsOffice = (GPSOfficeRef) registry.lookup(office);
-				gpsOffice.addListener(officeListener);
-
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (NotBoundException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	private static void showUsage() {
