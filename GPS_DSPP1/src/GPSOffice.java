@@ -76,7 +76,7 @@ public class GPSOffice implements GPSOfficeRef {
 	protected void resetNeighborNetwork(GPSOfficeRef gpsOffice, double dist) {
 
 		System.out.println("before");
-		printNeighbors(gpsOffice);
+		// printNeighbors(gpsOffice);
 
 		try {
 			List<Neighbor> neighbors = gpsOffice.getNeighbors();
@@ -116,35 +116,36 @@ public class GPSOffice implements GPSOfficeRef {
 		}
 
 		System.out.println("after");
-		printNeighbors(gpsOffice);
+		// printNeighbors(gpsOffice);
 
 	}
 
-	private void printNeighbors(GPSOfficeRef gpsOffice) {
-
-		List<Neighbor> neighbors;
-		try {
-			neighbors = gpsOffice.getNeighbors();
-
-			System.out.println("start: Neighbors of "
-					+ gpsOffice.getGPSOfficeName());
-			if (neighbors != null)
-				for (Neighbor n : neighbors) {
-					try {
-						System.out.println(n.getGpsOffice().getGPSOfficeName()
-								+ " " + n.getDistance());
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-			System.out.println("end");
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
-	}
+	 private void printNeighbors(GPSOfficeRef gpsOffice) {
+	
+	 List<Neighbor> neighbors;
+	 try {
+	 neighbors = gpsOffice.getNeighbors();
+	
+	 System.out.println("start: Neighbors of "
+	 + gpsOffice.getGPSOfficeName());
+	 if (neighbors != null)
+	 for (Neighbor n : neighbors) {
+	 try {
+	 System.out.println(n.getGpsOffice().getGPSOfficeName()
+	 + " " + n.getDistance());
+	 } catch (RemoteException e) {
+	 e.printStackTrace();
+	 }
+	 }
+	 System.out.println("end");
+	 } catch (RemoteException e1) {
+	 e1.printStackTrace();
+	 }
+	 }
 
 	@Override
-	public void generateNeighbors() throws RemoteException {
+	public void generateNeighbors(long trackingNumber, final double x2,
+			final double y2) throws RemoteException {
 
 		List<String> offices = registry.list();
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
@@ -165,22 +166,12 @@ public class GPSOffice implements GPSOfficeRef {
 				double gpsOfficeY = gpsOffice.getGPSOfficeCoordinates()[1];
 				final double dist = getDistance(x, y, gpsOfficeX, gpsOfficeY);
 
-				// resetting the network
-				// Thread t = new Thread(new Runnable() {
-				//
-				// @Override
-				// public void run() {
-				// resetNeighborNetwork(gpsOffice, dist);
-				// }
-				//
-				// });
-				// t.start();
-				// resetting the network
-
 				Neighbor neighbor = new Neighbor(gpsOffice, dist);
 				gpsNeighbors.add(neighbor);
 			} catch (NotBoundException e) {
 				e.printStackTrace();
+				eventGenerator.reportEvent(new GPSOfficeEvent(this,
+						trackingNumber, x2, y2, 3));
 			}
 		}
 
@@ -200,6 +191,9 @@ public class GPSOffice implements GPSOfficeRef {
 	public void forwardPackage(final GPSOfficeRef office,
 			final long trackingNumber, final double x2, final double y2)
 			throws RemoteException {
+
+		eventGenerator.reportEvent(new GPSOfficeEvent(this,
+				trackingNumber, x2, y2, 2));
 		Thread t = new Thread(new Runnable() {
 
 			@Override
@@ -251,77 +245,104 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public long checkPackage(long trackingNumber, final double x2,
-			final double y2) throws RemoteException, NotBoundException, InterruptedException {
-
-		System.out.println("destination: " + x2 + "," + y2
-				+ " TrackingNumber: " + trackingNumber);
-		generateNeighbors();
-		// printing neighbors for debugging
-		printNeighbors(this);
+			final double y2) throws RemoteException, NotBoundException,
+			InterruptedException {
 
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
 		}
-		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
-				y2, 1));
+		
+		final long tempTrack = trackingNumber;
 
-		double destDist = getDistance(x, y, x2, y2);
+		Thread t = new Thread(new Runnable() {
 
-		double[] neigh = new double[] { Double.MAX_VALUE, Double.MAX_VALUE,
-				Double.MAX_VALUE };
-
-		for (int i = 0; i < neighbors.size(); i++) {
-			neigh[i] = getDistance(neighbors.get(i).getGpsOffice()
-					.getGPSOfficeCoordinates()[0], neighbors.get(0)
-					.getGpsOffice().getGPSOfficeCoordinates()[1], x2, y2);
-		}
-
-		Thread.sleep(3000);
-		GPSOfficeRef office = null;
-		if (destDist <= neigh[0] && destDist <= neigh[1]
-				&& destDist <= neigh[2]) {
-
-			System.out.println("direct");
-			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
-					x2, y2, 4));
-		} else {
-
-			System.out.println("neigh");
-			if (neigh[0] < neigh[1]) {
-				if (neigh[0] < neigh[2]) {
-					System.out.println("neigh 1.");
-					office = (GPSOfficeRef) registry.lookup(neighbors.get(0)
-							.getGpsOffice().getGPSOfficeName());
-					eventGenerator.reportEvent(new GPSOfficeEvent(this,
-							trackingNumber, x2, y2, 2));
-
-				} else {
-					System.out.println("neigh 3.");
-					office = (GPSOfficeRef) registry.lookup(neighbors.get(2)
-							.getGpsOffice().getGPSOfficeName());
-					eventGenerator.reportEvent(new GPSOfficeEvent(this,
-							trackingNumber, x2, y2, 2));
-				}
-			} else {
-				if (neigh[1] < neigh[2]) {
-					System.out.println("neigh 2");
-					office = (GPSOfficeRef) registry.lookup(neighbors.get(1)
-							.getGpsOffice().getGPSOfficeName());
-					eventGenerator.reportEvent(new GPSOfficeEvent(this,
-							trackingNumber, x2, y2, 2));
-				} else {
-					System.out.println("neigh 3");
-					office = (GPSOfficeRef) registry.lookup(neighbors.get(2)
-							.getGpsOffice().getGPSOfficeName());
-					System.out.println(office.getGPSOfficeName());
-					eventGenerator.reportEvent(new GPSOfficeEvent(this,
-							trackingNumber, x2, y2, 2));
+			@Override
+			public void run() {
+				try {
+					examinePackage(tempTrack, x2, y2);
+				} catch (RemoteException e) {
+					e.printStackTrace();
 				}
 			}
-			forwardPackage(office, trackingNumber, x2, y2);
+		});
+
+		t.start();
+		return trackingNumber;
+	}
+
+	@Override
+	public void examinePackage(long trackingNumber, final double x2,
+			final double y2) throws RemoteException {
+
+		try {
+
+			generateNeighbors(trackingNumber, x2, y2);
+			printNeighbors(this);
+
+			
+
+			double destDist = getDistance(x, y, x2, y2);
+			System.out.println("dest dist: "+destDist);
+
+			double[] neigh = new double[] { Double.MAX_VALUE, Double.MAX_VALUE,
+					Double.MAX_VALUE };
+
+			if (neighbors != null) {
+				for (int i = 0; i < neighbors.size(); i++) {
+					neigh[i] = getDistance(neighbors.get(i).getGpsOffice()
+							.getGPSOfficeCoordinates()[0], neighbors.get(i)
+							.getGpsOffice().getGPSOfficeCoordinates()[1], x2,
+							y2);
+				}
+			}
+
+			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
+					x2, y2, 1));
+			Thread.sleep(3000);
+			
+			GPSOfficeRef office = null;
+			if (destDist <= neigh[0] && destDist <= neigh[1]
+					&& destDist <= neigh[2]) {
+
+				System.out.println("direct");
+				eventGenerator.reportEvent(new GPSOfficeEvent(this,
+						trackingNumber, x2, y2, 4));
+			} else {
+
+				System.out.println("neigh");
+				if (neigh[0] < neigh[1]) {
+					if (neigh[0] < neigh[2]) {
+						System.out.println("neigh 1.");
+						office = (GPSOfficeRef) registry.lookup(neighbors
+								.get(0).getGpsOffice().getGPSOfficeName());
+						
+
+					} else {
+						System.out.println("neigh 3.");
+						office = (GPSOfficeRef) registry.lookup(neighbors
+								.get(2).getGpsOffice().getGPSOfficeName());
+					}
+				} else {
+					System.out.println(neigh[1]+" "+neigh[2]);
+					if (neigh[1] < neigh[2]) {
+						System.out.println("neigh 2");
+						office = (GPSOfficeRef) registry.lookup(neighbors
+								.get(1).getGpsOffice().getGPSOfficeName());
+					} else {
+						System.out.println("neigh 3");
+						office = (GPSOfficeRef) registry.lookup(neighbors
+								.get(2).getGpsOffice().getGPSOfficeName());
+					}
+				}
+				
+				forwardPackage(office, trackingNumber, x2, y2);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
+					x2, y2, 3));
 		}
 
-		return trackingNumber;
 	}
 
 	private double getDistance(double tempX1, double tempY1, double tempX2,

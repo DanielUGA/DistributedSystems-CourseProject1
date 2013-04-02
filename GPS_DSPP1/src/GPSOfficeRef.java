@@ -15,7 +15,8 @@ public interface GPSOfficeRef extends Remote {
 			final double y2) throws RemoteException;
 
 	// called from constructor
-	public void generateNeighbors() throws RemoteException;
+	public void generateNeighbors(long trackingNumber, final double x2,
+			final double y2) throws RemoteException;
 
 	public String getGPSOfficeName() throws RemoteException;
 
@@ -27,5 +28,8 @@ public interface GPSOfficeRef extends Remote {
 
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener)
 			throws RemoteException;
+	
+	public void examinePackage(long trackingNumber, final double x2,
+			final double y2) throws RemoteException;
 
 }
