@@ -84,7 +84,7 @@ public class Headquarters {
 		}
 
 		
-		registryFilter = new RegistryEventFilter().reportType("Node")
+		registryFilter = new RegistryEventFilter().reportType("GPSOffice")
 				.reportBound();
 		try {
 			registry.addEventListener(registryListener, registryFilter);
