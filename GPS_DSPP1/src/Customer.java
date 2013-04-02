@@ -89,10 +89,11 @@ public class Customer {
 			};
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
-			listenToOffices();
+			//listenToOffices();
 
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
-			trackingNumber = gpsOffice.checkPackage(0l, x, y);
+			gpsOffice.addListener(officeListener);
+			trackingNumber = gpsOffice.checkPackage(0l, x, y,officeListener);
 
 		} catch (RemoteException e) {
 			System.out.println("No Remote Server at host=" + host

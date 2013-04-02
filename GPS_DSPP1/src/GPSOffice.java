@@ -189,7 +189,7 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public void forwardPackage(final GPSOfficeRef office,
-			final long trackingNumber, final double x2, final double y2)
+			final long trackingNumber, final double x2, final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
 		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
@@ -200,7 +200,7 @@ public class GPSOffice implements GPSOfficeRef {
 			public void run() {
 				try {
 					if (office != null)
-						office.checkPackage(trackingNumber, x2, y2);
+						office.checkPackage(trackingNumber, x2, y2, officeListener);
 					else
 						throw new Exception("Package lost");
 				} catch (RemoteException e) {
@@ -245,11 +245,13 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public long checkPackage(long trackingNumber, final double x2,
-			final double y2) throws RemoteException, NotBoundException,
+			final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException, NotBoundException,
 			InterruptedException {
 
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
+		}else{
+			addListener(officeListener);
 		}
 
 		final long tempTrack = trackingNumber;
@@ -259,7 +261,7 @@ public class GPSOffice implements GPSOfficeRef {
 			@Override
 			public void run() {
 				try {
-					examinePackage(tempTrack, x2, y2);
+					examinePackage(tempTrack, x2, y2, officeListener);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -272,7 +274,7 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public void examinePackage(long trackingNumber, final double x2,
-			final double y2) throws RemoteException {
+			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException {
 
 		try {
 
@@ -331,7 +333,7 @@ public class GPSOffice implements GPSOfficeRef {
 					}
 				}
 
-				forwardPackage(office, trackingNumber, x2, y2);
+				forwardPackage(office, trackingNumber, x2, y2, officeListener);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
