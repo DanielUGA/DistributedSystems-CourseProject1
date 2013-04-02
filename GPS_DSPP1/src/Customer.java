@@ -14,7 +14,6 @@ public class Customer {
 	private static double y;
 	private static long trackingNumber;
 	private static RegistryProxy registry;
-
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
 
 	public static void main(String[] args) {
