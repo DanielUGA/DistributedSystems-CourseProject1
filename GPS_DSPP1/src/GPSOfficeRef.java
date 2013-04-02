@@ -7,9 +7,11 @@ import edu.rit.ds.RemoteEventListener;
 
 public interface GPSOfficeRef extends Remote {
 
-	public String checkPackage() throws RemoteException;
+	public long checkPackage(long trackingNumber, double x, double y)
+			throws RemoteException;
 
-	public String forwardPackage() throws RemoteException;
+	public void forwardPackage(final GPSOfficeRef office, final long trackingNumber, final double x2,
+			final double y2) throws RemoteException;
 
 	// called from constructor
 	public void generateNeighbors() throws RemoteException;

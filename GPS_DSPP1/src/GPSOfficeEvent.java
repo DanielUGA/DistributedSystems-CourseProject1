@@ -3,10 +3,18 @@ import edu.rit.ds.RemoteEvent;
 public class GPSOfficeEvent extends RemoteEvent {
 
 	private GPSOfficeRef gpsOffice;
-	private String trackingId;
+	private long trackingId;
 	private double x;
 	private double y;
-	private boolean arrived;
+	private int status;
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
 	public GPSOfficeRef getGpsOffice() {
 		return gpsOffice;
@@ -16,11 +24,11 @@ public class GPSOfficeEvent extends RemoteEvent {
 		this.gpsOffice = gpsOffice;
 	}
 
-	public String getTrackingId() {
+	public long getTrackingId() {
 		return trackingId;
 	}
 
-	public void setTrackingId(String trackingId) {
+	public void setTrackingId(long trackingId) {
 		this.trackingId = trackingId;
 	}
 
@@ -40,23 +48,16 @@ public class GPSOfficeEvent extends RemoteEvent {
 		this.y = y;
 	}
 
-	public boolean isArrived() {
-		return arrived;
-	}
-
-	public void setArrived(boolean arrived) {
-		this.arrived = arrived;
-	}
 
 	
-	public GPSOfficeEvent(GPSOfficeRef office, String id, double xCoord,
-			double yCoord, boolean arr) {
+	public GPSOfficeEvent(GPSOfficeRef office, long id, double xCoord,
+			double yCoord, int status) {
 
 		gpsOffice = office;
 		trackingId = id;
 		x = xCoord;
 		y = yCoord;
-		arrived = arr;
+		this.status = status;
 	}
 
 }

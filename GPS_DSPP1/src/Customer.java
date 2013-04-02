@@ -1,26 +1,31 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 import edu.rit.ds.Lease;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
-
 public class Customer {
-	
+
+	private static String origin;
+	private static double x;
+	private static double y;
+	private static long trackingNumber;
+	private static RegistryProxy registry;
+
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
-	public static void main(String[] args){
-		
-		if(args.length != 5){
+
+	public static void main(String[] args) {
+
+		if (args.length != 5) {
 			showUsage();
 		}
-		
+
 		String host = args[0];
-		String name = args[2];
+		origin = args[2];
 		int port;
-		double x;
-		double y;
 		try {
 			port = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
@@ -36,25 +41,64 @@ public class Customer {
 		}
 
 		try {
-			RegistryProxy registry = new RegistryProxy(host, port);
-			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(name);
-			String track = gpsOffice.checkPackage();
-			
+
+			registry = new RegistryProxy(host, port);
 			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
 				public void report(long seqnum, GPSOfficeEvent event) {
-					// Print log report on the console.
+					// Print tracking info on the console.
+
 					try {
-						System.out.println("office name: "+ event.getGpsOffice().getGPSOfficeName());
+						if (trackingNumber == event.getTrackingId()
+								|| (event.getGpsOffice().getGPSOfficeName()
+										.equals(origin) && trackingNumber == 0l)) {
+
+							try {
+
+								if (event.getStatus() == 3)
+									System.out.println("Package number "
+											+ event.getTrackingId()
+											+ " lost by "
+											+ event.getGpsOffice()
+													.getGPSOfficeName());
+								else if (event.getStatus() == 1)
+									System.out.println("Package number "
+											+ event.getTrackingId()
+											+ " arrived at "
+											+ event.getGpsOffice()
+													.getGPSOfficeName());
+								else if (event.getStatus() == 2) {
+									System.out.println("Package number "
+											+ event.getTrackingId()
+											+ " departed from "
+											+ event.getGpsOffice()
+													.getGPSOfficeName());
+								} else {
+									System.out.println("Package number "
+											+ event.getTrackingId()
+											+ " delivered from "
+											+ event.getGpsOffice()
+													.getGPSOfficeName()
+											+ " office to " + "("
+											+ event.getX() + "," + event.getY()
+											+ ")");
+								}
+							} catch (RemoteException e) {
+								e.printStackTrace();
+							}
+						}
 					} catch (RemoteException e) {
 						e.printStackTrace();
 					}
 				}
 			};
 			UnicastRemoteObject.exportObject(officeListener, 0);
-			
-			Lease lease = gpsOffice.addListener(officeListener);
-			
-			System.out.println(track);
+
+			listenToOffices();
+			// Lease lease = gpsOffice.addListener(officeListener);
+
+			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
+			trackingNumber = gpsOffice.checkPackage(0l, x, y);
+
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (NotBoundException e) {
@@ -62,12 +106,33 @@ public class Customer {
 		}
 	}
 
+	private static void listenToOffices() {
+
+		try {
+			List<String> offices = registry.list();
+
+			for (String office : offices) {
+				GPSOfficeRef gpsOffice;
+
+				gpsOffice = (GPSOfficeRef) registry.lookup(office);
+				gpsOffice.addListener(officeListener);
+
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	private static void showUsage() {
-		
+
 		System.err.println("Usage: java Customer <host> <port> <name> <X> <Y>");
 		System.err.println("<host> = Registry Server's host");
 		System.err.println("<port> = Registry Server's port");
-		System.err.println("<name> = name of the city in which GPS office is located");
+		System.err
+				.println("<name> = name of the city in which GPS office is located");
 		System.err.println("<X> = X co-ordinate of the destinataion");
 		System.err.println("<Y> = Y co-ordinate of the destinataion");
 		System.exit(1);
