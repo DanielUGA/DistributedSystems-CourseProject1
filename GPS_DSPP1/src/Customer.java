@@ -5,6 +5,9 @@ import java.util.List;
 import edu.rit.ds.Lease;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
+import edu.rit.ds.registry.RegistryEvent;
+import edu.rit.ds.registry.RegistryEventFilter;
+import edu.rit.ds.registry.RegistryEventListener;
 import edu.rit.ds.registry.RegistryProxy;
 
 public class Customer {
@@ -15,6 +18,10 @@ public class Customer {
 	private static long trackingNumber;
 	private static RegistryProxy registry;
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
+	private static RegistryEventListener registryListener;
+	private static RegistryEventFilter registryFilter;
+	private static boolean flag;
+	private static String currentOffice;
 
 	public static void main(String[] args) {
 
@@ -45,6 +52,25 @@ public class Customer {
 		try {
 
 			registry = new RegistryProxy(host, port);
+
+			registryListener = new RegistryEventListener() {
+				public void report(long seqnum, RegistryEvent event) {
+					if (event.objectName().equals(currentOffice)) {
+						if (flag) {
+							System.out.println("Package number "
+									+ trackingNumber + " lost by "
+									+ currentOffice);
+							System.exit(1);
+						}
+					}
+				}
+			};
+			UnicastRemoteObject.exportObject(registryListener, 0);
+
+			registryFilter = new RegistryEventFilter().reportType("GPSOffice")
+					.reportUnbound();
+			registry.addEventListener(registryListener, registryFilter);
+
 			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
 				public void report(long seqnum, GPSOfficeEvent event) {
 					// Print tracking info on the console.
@@ -60,13 +86,17 @@ public class Customer {
 										+ event.getGpsOffice()
 												.getGPSOfficeName());
 								System.exit(1);
-							} else if (event.getStatus() == 1)
+							} else if (event.getStatus() == 1) {
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " arrived at "
 										+ event.getGpsOffice()
 												.getGPSOfficeName());
-							else if (event.getStatus() == 2) {
+								flag = true;
+								currentOffice = event.getGpsOffice()
+										.getGPSOfficeName();
+							} else if (event.getStatus() == 2) {
+								flag = false;
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " departed from "
@@ -91,7 +121,7 @@ public class Customer {
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
-			gpsOffice.addListener(officeListener);
+			// gpsOffice.addListener(officeListener);
 			trackingNumber = gpsOffice.checkPackage(0l, x, y, officeListener);
 
 		} catch (RemoteException e) {

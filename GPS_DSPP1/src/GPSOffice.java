@@ -211,9 +211,8 @@ public class GPSOffice implements GPSOfficeRef {
 
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
-		}else{
-			addListener(officeListener);
 		}
+		addListener(officeListener);
 
 		final long tempTrack = trackingNumber;
 
