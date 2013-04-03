@@ -78,76 +78,6 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
-	protected void resetNeighborNetwork(GPSOfficeRef gpsOffice, double dist) {
-
-		//System.out.println("before");
-		// printNeighbors(gpsOffice);
-
-		try {
-			List<Neighbor> neighbors = gpsOffice.getNeighbors();
-
-			if (neighbors != null) {
-				if (neighbors.size() < 3) {
-					Neighbor n = new Neighbor(this, dist);
-					neighbors.add(n);
-					Collections.sort(neighbors, new NeighborComparator());
-					gpsOffice.setNeighbors(neighbors);
-				} else {
-					if (dist < neighbors.get(0).getDistance()) {
-						Neighbor n = new Neighbor(this, dist);
-						neighbors.add(0, n);
-					} else if (dist < neighbors.get(1).getDistance()) {
-						Neighbor n = new Neighbor(this, dist);
-						neighbors.add(1, n);
-					} else if (dist < neighbors.get(2).getDistance()) {
-						Neighbor n = new Neighbor(this, dist);
-						neighbors.add(2, n);
-					}
-
-					gpsOffice.setNeighbors(new ArrayList<Neighbor>(neighbors
-							.subList(0, 3)));
-				}
-			} else {
-				neighbors = new ArrayList<Neighbor>();
-				Neighbor n = new Neighbor(this, dist);
-				neighbors.add(n);
-				gpsOffice.setNeighbors(neighbors);
-			}
-
-			registry.rebind(gpsOffice.getGPSOfficeName(), gpsOffice);
-
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-
-		//System.out.println("after");
-		// printNeighbors(gpsOffice);
-
-	}
-
-//	private void printNeighbors(GPSOfficeRef gpsOffice) {
-//
-//		List<Neighbor> neighbors;
-//		try {
-//			neighbors = gpsOffice.getNeighbors();
-//
-//			System.out.println("start: Neighbors of "
-//					+ gpsOffice.getGPSOfficeName());
-//			if (neighbors != null)
-//				for (Neighbor n : neighbors) {
-//					try {
-//						System.out.println(n.getGpsOffice().getGPSOfficeName()
-//								+ " " + n.getDistance());
-//					} catch (RemoteException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			System.out.println("end");
-//		} catch (RemoteException e1) {
-//			e1.printStackTrace();
-//		}
-//	}
-
 	@Override
 	public void generateNeighbors(long trackingNumber, final double x2,
 			final double y2) throws RemoteException {
@@ -212,16 +142,19 @@ public class GPSOffice implements GPSOfficeRef {
 						throw new Exception("Package lost");
 				} catch (RemoteException e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+					eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
 							trackingNumber, x2, y2, 3));
 				} catch (Exception e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+					eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
 							trackingNumber, x2, y2, 3));
 				}
 			}
 		}, 3, TimeUnit.SECONDS);
 		
+		
+//		eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice, trackingNumber, x2,
+//				y2, 2));
 //		Thread t = new Thread(new Runnable() {
 //
 //			@Override
