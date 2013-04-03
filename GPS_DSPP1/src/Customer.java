@@ -57,10 +57,10 @@ public class Customer {
 				public void report(long seqnum, RegistryEvent event) {
 					if (event.objectName().equals(currentOffice)) {
 						if (flag) {
-							System.out.println("Package number "
-									+ trackingNumber + " lost by "
-									+ currentOffice);
-							System.exit(1);
+//							System.out.println("Package number "
+//									+ trackingNumber + " lost by "
+//									+ currentOffice);
+//							System.exit(1);
 						}
 					}
 				}
