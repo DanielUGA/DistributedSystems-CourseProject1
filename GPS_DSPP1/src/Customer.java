@@ -57,10 +57,10 @@ public class Customer {
 				public void report(long seqnum, RegistryEvent event) {
 					if (event.objectName().equals(currentOffice)) {
 						if (flag) {
-//							System.out.println("Package number "
-//									+ trackingNumber + " lost by "
-//									+ currentOffice);
-//							System.exit(1);
+							System.out.println("Package number "
+									+ trackingNumber + " lost by "
+									+ currentOffice);
+							System.exit(1);
 						}
 					}
 				}
@@ -84,14 +84,14 @@ public class Customer {
 										+ event.getTrackingId()
 										+ " lost by "
 										+ event.getGpsOffice()
-												.getGPSOfficeName());
+												.getGPSOfficeName()+" office");
 								System.exit(1);
 							} else if (event.getStatus() == 1) {
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " arrived at "
 										+ event.getGpsOffice()
-												.getGPSOfficeName());
+												.getGPSOfficeName()+" office");
 								flag = true;
 								currentOffice = event.getGpsOffice()
 										.getGPSOfficeName();
@@ -101,7 +101,7 @@ public class Customer {
 										+ event.getTrackingId()
 										+ " departed from "
 										+ event.getGpsOffice()
-												.getGPSOfficeName());
+												.getGPSOfficeName()+" office");
 							} else {
 								System.out.println("Package number "
 										+ event.getTrackingId()

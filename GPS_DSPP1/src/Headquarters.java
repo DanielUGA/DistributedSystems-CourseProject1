@@ -55,15 +55,15 @@ public class Headquarters {
 					if (event.getStatus() == 3)
 						System.out.println("Package number "
 								+ event.getTrackingId() + " lost by "
-								+ event.getGpsOffice().getGPSOfficeName());
+								+ event.getGpsOffice().getGPSOfficeName()+" office");
 					else if (event.getStatus() == 1)
 						System.out.println("Package number "
 								+ event.getTrackingId() + " arrived at "
-								+ event.getGpsOffice().getGPSOfficeName());
+								+ event.getGpsOffice().getGPSOfficeName()+" office");
 					else if (event.getStatus() == 2) {
 						System.out.println("Package number "
 								+ event.getTrackingId() + " departed from "
-								+ event.getGpsOffice().getGPSOfficeName());
+								+ event.getGpsOffice().getGPSOfficeName()+" office");
 					} else {
 						System.out.println("Package number "
 								+ event.getTrackingId() + " delivered from "
