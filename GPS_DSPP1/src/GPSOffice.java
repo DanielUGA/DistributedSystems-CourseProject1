@@ -6,6 +6,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import edu.rit.ds.Lease;
 import edu.rit.ds.RemoteEventGenerator;
@@ -21,9 +24,12 @@ public class GPSOffice implements GPSOfficeRef {
 	private double y;
 	private List<Neighbor> neighbors;
 	private RegistryProxy registry;
+	private ScheduledExecutorService reaper;
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
 
 	public GPSOffice(String[] args) throws IOException {
+
+		reaper = Executors.newSingleThreadScheduledExecutor();
 
 		if (args.length != 5) {
 			throw new IllegalArgumentException(
@@ -188,36 +194,59 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public void forwardPackage(final GPSOfficeRef office,
+	public void forwardPackage(final GPSOfficeRef currentOffice, final GPSOfficeRef nextOffice,
 			final long trackingNumber, final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
-		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
-				y2, 2));
-		Thread t = new Thread(new Runnable() {
-
-			@Override
+		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
-					if (office != null)
-						office.checkPackage(trackingNumber, x2, y2,
+					eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice, trackingNumber, x2,
+							y2, 2));
+					
+					if (nextOffice != null)
+						nextOffice.checkPackage(trackingNumber, x2, y2,
 								officeListener);
 					else
 						throw new Exception("Package lost");
 				} catch (RemoteException e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+					eventGenerator.reportEvent(new GPSOfficeEvent(nextOffice,
 							trackingNumber, x2, y2, 3));
 				} catch (Exception e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+					eventGenerator.reportEvent(new GPSOfficeEvent(nextOffice,
 							trackingNumber, x2, y2, 3));
 				}
 			}
+		}, 3, TimeUnit.SECONDS);
+		
+		
 
-		});
-		t.start();
+		// Thread t = new Thread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// try {
+		// if (office != null)
+		// office.checkPackage(trackingNumber, x2, y2,
+		// officeListener);
+		// else
+		// throw new Exception("Package lost");
+		// } catch (RemoteException e) {
+		// e.printStackTrace();
+		// eventGenerator.reportEvent(new GPSOfficeEvent(office,
+		// trackingNumber, x2, y2, 3));
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// eventGenerator.reportEvent(new GPSOfficeEvent(office,
+		// trackingNumber, x2, y2, 3));
+		// }
+		// }
+		//
+		// });
+		// t.start();
 	}
 
 	@Override
@@ -302,12 +331,12 @@ public class GPSOffice implements GPSOfficeRef {
 
 			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
 					x2, y2, 1));
-			Thread.sleep(3000);
+			
 
 			GPSOfficeRef office = null;
 			if (destDist <= neigh[0] && destDist <= neigh[1]
 					&& destDist <= neigh[2]) {
-
+				Thread.sleep(3000);
 				// System.out.println("direct");
 				eventGenerator.reportEvent(new GPSOfficeEvent(this,
 						trackingNumber, x2, y2, 4));
@@ -337,7 +366,7 @@ public class GPSOffice implements GPSOfficeRef {
 					}
 				}
 
-				forwardPackage(office, trackingNumber, x2, y2, officeListener);
+				forwardPackage(this,office, trackingNumber, x2, y2, officeListener);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

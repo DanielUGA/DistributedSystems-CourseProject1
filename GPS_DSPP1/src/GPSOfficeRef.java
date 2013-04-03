@@ -11,7 +11,7 @@ public interface GPSOfficeRef extends Remote {
 	public long checkPackage(long trackingNumber, double x, double y, final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException;
 
-	public void forwardPackage(final GPSOfficeRef office, final long trackingNumber, final double x2,
+	public void forwardPackage(final GPSOfficeRef currentOffice, final GPSOfficeRef nextOffice, final long trackingNumber, final double x2,
 			final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException;
 
 	// called from constructor
