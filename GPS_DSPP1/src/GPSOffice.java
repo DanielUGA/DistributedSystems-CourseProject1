@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.io.Serializable;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -24,13 +23,13 @@ public class GPSOffice implements GPSOfficeRef {
 	private double y;
 	private List<Neighbor> neighbors;
 	private RegistryProxy registry;
-	private ScheduledExecutorService reaper;
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
+	private ScheduledExecutorService reaper;
 
 	public GPSOffice(String[] args) throws IOException {
 
 		reaper = Executors.newSingleThreadScheduledExecutor();
-
+		
 		if (args.length != 5) {
 			throw new IllegalArgumentException(
 					"Usage: java Start GPSOffice <host> <port> <name> <X> <Y>");
@@ -81,7 +80,7 @@ public class GPSOffice implements GPSOfficeRef {
 
 	protected void resetNeighborNetwork(GPSOfficeRef gpsOffice, double dist) {
 
-		// System.out.println("before");
+		//System.out.println("before");
 		// printNeighbors(gpsOffice);
 
 		try {
@@ -121,33 +120,33 @@ public class GPSOffice implements GPSOfficeRef {
 			e.printStackTrace();
 		}
 
-		// System.out.println("after");
+		//System.out.println("after");
 		// printNeighbors(gpsOffice);
 
 	}
 
-	// private void printNeighbors(GPSOfficeRef gpsOffice) {
-	//
-	// List<Neighbor> neighbors;
-	// try {
-	// neighbors = gpsOffice.getNeighbors();
-	//
-	// System.out.println("start: Neighbors of "
-	// + gpsOffice.getGPSOfficeName());
-	// if (neighbors != null)
-	// for (Neighbor n : neighbors) {
-	// try {
-	// System.out.println(n.getGpsOffice().getGPSOfficeName()
-	// + " " + n.getDistance());
-	// } catch (RemoteException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// System.out.println("end");
-	// } catch (RemoteException e1) {
-	// e1.printStackTrace();
-	// }
-	// }
+//	private void printNeighbors(GPSOfficeRef gpsOffice) {
+//
+//		List<Neighbor> neighbors;
+//		try {
+//			neighbors = gpsOffice.getNeighbors();
+//
+//			System.out.println("start: Neighbors of "
+//					+ gpsOffice.getGPSOfficeName());
+//			if (neighbors != null)
+//				for (Neighbor n : neighbors) {
+//					try {
+//						System.out.println(n.getGpsOffice().getGPSOfficeName()
+//								+ " " + n.getDistance());
+//					} catch (RemoteException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			System.out.println("end");
+//		} catch (RemoteException e1) {
+//			e1.printStackTrace();
+//		}
+//	}
 
 	@Override
 	public void generateNeighbors(long trackingNumber, final double x2,
@@ -194,59 +193,57 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public void forwardPackage(final GPSOfficeRef currentOffice, final GPSOfficeRef nextOffice,
-			final long trackingNumber, final double x2, final double y2,
-			final RemoteEventListener<GPSOfficeEvent> officeListener)
+	public void forwardPackage(final GPSOfficeRef office,
+			final long trackingNumber, final double x2, final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
+		
+		
+		final GPSOffice currentOffice = this;
 		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
 					eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice, trackingNumber, x2,
 							y2, 2));
 					
-					if (nextOffice != null)
-						nextOffice.checkPackage(trackingNumber, x2, y2,
-								officeListener);
+					if (office != null)
+						office.checkPackage(trackingNumber, x2, y2, officeListener);
 					else
 						throw new Exception("Package lost");
 				} catch (RemoteException e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(nextOffice,
+					eventGenerator.reportEvent(new GPSOfficeEvent(office,
 							trackingNumber, x2, y2, 3));
 				} catch (Exception e) {
 					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(nextOffice,
+					eventGenerator.reportEvent(new GPSOfficeEvent(office,
 							trackingNumber, x2, y2, 3));
 				}
 			}
 		}, 3, TimeUnit.SECONDS);
 		
-		
-
-		// Thread t = new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// try {
-		// if (office != null)
-		// office.checkPackage(trackingNumber, x2, y2,
-		// officeListener);
-		// else
-		// throw new Exception("Package lost");
-		// } catch (RemoteException e) {
-		// e.printStackTrace();
-		// eventGenerator.reportEvent(new GPSOfficeEvent(office,
-		// trackingNumber, x2, y2, 3));
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// eventGenerator.reportEvent(new GPSOfficeEvent(office,
-		// trackingNumber, x2, y2, 3));
-		// }
-		// }
-		//
-		// });
-		// t.start();
+//		Thread t = new Thread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				try {
+//					if (office != null)
+//						office.checkPackage(trackingNumber, x2, y2, officeListener);
+//					else
+//						throw new Exception("Package lost");
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+//							trackingNumber, x2, y2, 3));
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//					eventGenerator.reportEvent(new GPSOfficeEvent(office,
+//							trackingNumber, x2, y2, 3));
+//				}
+//			}
+//
+//		});
+//		t.start();
 	}
 
 	@Override
@@ -276,13 +273,12 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public long checkPackage(long trackingNumber, final double x2,
-			final double y2,
-			final RemoteEventListener<GPSOfficeEvent> officeListener)
-			throws RemoteException, NotBoundException, InterruptedException {
+			final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException, NotBoundException,
+			InterruptedException {
 
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
-		} else {
+		}else{
 			addListener(officeListener);
 		}
 
@@ -306,16 +302,15 @@ public class GPSOffice implements GPSOfficeRef {
 
 	@Override
 	public void examinePackage(long trackingNumber, final double x2,
-			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener)
-			throws RemoteException {
+			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException {
 
 		try {
 
 			generateNeighbors(trackingNumber, x2, y2);
-			// printNeighbors(this);
+			//printNeighbors(this);
 
 			double destDist = getDistance(x, y, x2, y2);
-			// System.out.println("dest dist: " + destDist);
+			//System.out.println("dest dist: " + destDist);
 
 			double[] neigh = new double[] { Double.MAX_VALUE, Double.MAX_VALUE,
 					Double.MAX_VALUE };
@@ -337,36 +332,36 @@ public class GPSOffice implements GPSOfficeRef {
 			if (destDist <= neigh[0] && destDist <= neigh[1]
 					&& destDist <= neigh[2]) {
 				Thread.sleep(3000);
-				// System.out.println("direct");
+				//System.out.println("direct");
 				eventGenerator.reportEvent(new GPSOfficeEvent(this,
 						trackingNumber, x2, y2, 4));
 			} else {
 
-				// System.out.println("neigh");
+				//System.out.println("neigh");
 				if (neigh[0] < neigh[1]) {
 					if (neigh[0] < neigh[2]) {
-						// System.out.println("neigh 1.");
+						//System.out.println("neigh 1.");
 						office = (GPSOfficeRef) registry.lookup(neighbors
 								.get(0).getGpsOffice().getGPSOfficeName());
 
 					} else {
-						// System.out.println("neigh 3.");
+						//System.out.println("neigh 3.");
 						office = (GPSOfficeRef) registry.lookup(neighbors
 								.get(2).getGpsOffice().getGPSOfficeName());
 					}
 				} else {
 					if (neigh[1] < neigh[2]) {
-						// System.out.println("neigh 2");
+						//System.out.println("neigh 2");
 						office = (GPSOfficeRef) registry.lookup(neighbors
 								.get(1).getGpsOffice().getGPSOfficeName());
 					} else {
-						// System.out.println("neigh 3");
+						//System.out.println("neigh 3");
 						office = (GPSOfficeRef) registry.lookup(neighbors
 								.get(2).getGpsOffice().getGPSOfficeName());
 					}
 				}
 
-				forwardPackage(this,office, trackingNumber, x2, y2, officeListener);
+				forwardPackage(office, trackingNumber, x2, y2, officeListener);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -53,13 +53,14 @@ public class Customer {
 
 						try {
 
-							if (event.getStatus() == 3)
+							if (event.getStatus() == 3) {
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " lost by "
 										+ event.getGpsOffice()
 												.getGPSOfficeName());
-							else if (event.getStatus() == 1)
+								System.exit(1);
+							} else if (event.getStatus() == 1)
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " arrived at "
@@ -91,7 +92,7 @@ public class Customer {
 
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
 			gpsOffice.addListener(officeListener);
-			trackingNumber = gpsOffice.checkPackage(0l, x, y,officeListener);
+			trackingNumber = gpsOffice.checkPackage(0l, x, y, officeListener);
 
 		} catch (RemoteException e) {
 			System.out.println("No Remote Server at host=" + host
