@@ -2,12 +2,20 @@ import java.rmi.RemoteException;
 
 import edu.rit.ds.RemoteEventListener;
 
+/**
+ * @author Punit
+ *
+ */
 public class GPSOfficeEventListener implements
 		RemoteEventListener<GPSOfficeEvent> {
 
 	private long trackingNumber;
 	private String origin;
 
+	/**
+	 * @param trackingNo
+	 * @param origin
+	 */
 	public GPSOfficeEventListener(long trackingNo, String origin) {
 		trackingNumber = trackingNo;
 		this.origin = origin;

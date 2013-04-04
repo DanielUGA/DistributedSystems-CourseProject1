@@ -1,6 +1,10 @@
 import java.util.Comparator;
 
 
+/**
+ * @author Punit
+ *
+ */
 public class NeighborComparator implements Comparator<Neighbor>{
 
 	@Override

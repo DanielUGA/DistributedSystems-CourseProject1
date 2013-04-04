@@ -8,6 +8,10 @@ import edu.rit.ds.registry.RegistryEventFilter;
 import edu.rit.ds.registry.RegistryEventListener;
 import edu.rit.ds.registry.RegistryProxy;
 
+/**
+ * @author Punit
+ *
+ */
 public class Headquarters {
 
 	private static RegistryProxy registry;
@@ -15,6 +19,9 @@ public class Headquarters {
 	private static RegistryEventFilter registryFilter;
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		if (args.length != 2) {
@@ -102,6 +109,9 @@ public class Headquarters {
 
 	}
 
+	/**
+	 * @param office
+	 */
 	private static void listenToOffice(String office) {
 
 		try {
@@ -115,6 +125,9 @@ public class Headquarters {
 
 	}
 
+	/**
+	 * 
+	 */
 	private static void showUsage() {
 
 		System.err.println("Usage: java Headquarters <host> <port>");

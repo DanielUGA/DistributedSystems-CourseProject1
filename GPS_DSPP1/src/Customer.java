@@ -6,8 +6,9 @@ import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
-/*
- * Class Customer  
+/**
+ * @author Punit
+ *
  */
 public class Customer {
 
@@ -18,6 +19,9 @@ public class Customer {
 	private static RegistryProxy registry;
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		if (args.length != 5) {
@@ -116,6 +120,9 @@ public class Customer {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	private static void showUsage() {
 
 		System.err.println("Usage: java Customer <host> <port> <name> <X> <Y>");

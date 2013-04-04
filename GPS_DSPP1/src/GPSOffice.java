@@ -16,6 +16,10 @@ import edu.rit.ds.registry.AlreadyBoundException;
 import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
+/**
+ * @author Punit
+ *
+ */
 public class GPSOffice implements GPSOfficeRef {
 
 	private String name;
@@ -26,6 +30,10 @@ public class GPSOffice implements GPSOfficeRef {
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
 	private ScheduledExecutorService reaper;
 
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
 	public GPSOffice(String[] args) throws IOException {
 
 		reaper = Executors.newSingleThreadScheduledExecutor();
@@ -77,6 +85,8 @@ public class GPSOffice implements GPSOfficeRef {
 		eventGenerator = new RemoteEventGenerator<GPSOfficeEvent>();
 
 	}
+
+
 
 	@Override
 	public void generateNeighbors(long trackingNumber, final double x2,
@@ -289,6 +299,13 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
+	/**
+	 * @param tempX1
+	 * @param tempY1
+	 * @param tempX2
+	 * @param tempY2
+	 * @return
+	 */
 	private double getDistance(double tempX1, double tempY1, double tempX2,
 			double tempY2) {
 
