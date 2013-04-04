@@ -1,13 +1,8 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 
-import edu.rit.ds.Lease;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
-import edu.rit.ds.registry.RegistryEvent;
-import edu.rit.ds.registry.RegistryEventFilter;
-import edu.rit.ds.registry.RegistryEventListener;
 import edu.rit.ds.registry.RegistryProxy;
 
 public class Customer {
@@ -48,6 +43,8 @@ public class Customer {
 		try {
 
 			registry = new RegistryProxy(host, port);
+			
+		
 
 			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
 				public void report(long seqnum, GPSOfficeEvent event) {
