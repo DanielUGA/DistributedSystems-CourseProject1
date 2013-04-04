@@ -82,7 +82,7 @@ public class GPSOffice implements GPSOfficeRef {
 	public void generateNeighbors(long trackingNumber, final double x2,
 			final double y2) throws RemoteException {
 
-		List<String> offices = registry.list();
+		List<String> offices = registry.list("GPSOffice");
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
 		List<GPSOfficeRef> allGPSOffices = new ArrayList<GPSOfficeRef>();
 

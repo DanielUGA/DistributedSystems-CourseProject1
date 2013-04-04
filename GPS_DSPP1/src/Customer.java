@@ -18,10 +18,6 @@ public class Customer {
 	private static long trackingNumber;
 	private static RegistryProxy registry;
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
-	private static RegistryEventListener registryListener;
-	private static RegistryEventFilter registryFilter;
-	private static boolean flag;
-	private static String currentOffice;
 
 	public static void main(String[] args) {
 
@@ -53,24 +49,6 @@ public class Customer {
 
 			registry = new RegistryProxy(host, port);
 
-			registryListener = new RegistryEventListener() {
-				public void report(long seqnum, RegistryEvent event) {
-					if (event.objectName().equals(currentOffice)) {
-						if (flag) {
-							System.out.println("Package number "
-									+ trackingNumber + " lost by "
-									+ currentOffice);
-							System.exit(1);
-						}
-					}
-				}
-			};
-			UnicastRemoteObject.exportObject(registryListener, 0);
-
-			registryFilter = new RegistryEventFilter().reportType("GPSOffice")
-					.reportUnbound();
-			registry.addEventListener(registryListener, registryFilter);
-
 			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
 				public void report(long seqnum, GPSOfficeEvent event) {
 					// Print tracking info on the console.
@@ -92,11 +70,7 @@ public class Customer {
 										+ " arrived at "
 										+ event.getGpsOffice()
 												.getGPSOfficeName()+" office");
-								flag = true;
-								currentOffice = event.getGpsOffice()
-										.getGPSOfficeName();
 							} else if (event.getStatus() == 2) {
-								flag = false;
 								System.out.println("Package number "
 										+ event.getTrackingId()
 										+ " departed from "
