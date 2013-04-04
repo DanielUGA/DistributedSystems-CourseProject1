@@ -1,3 +1,4 @@
+// File: Customer.java
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -5,6 +6,9 @@ import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
+/*
+ * Class Customer  
+ */
 public class Customer {
 
 	private static String origin;

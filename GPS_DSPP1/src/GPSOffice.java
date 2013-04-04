@@ -95,9 +95,18 @@ public class GPSOffice implements GPSOfficeRef {
 					continue;
 				
 				allGPSOffices.add(gpsOffice);
-
-				if (gpsOffice.getGPSOfficeName().equals(name)) 
+				
+				try {
+					if (gpsOffice.getGPSOfficeName().equals(name)) 
+						continue;
+					
+				} catch (java.rmi.ConnectException e) {
+					// When the GPSOffice is externally killed, the registry
+					// takes some time to unbind it. If a look up is made
+					// meanwhile, the unbound object is also return in the list
+					// of the lookup
 					continue;
+				}
 
 				double gpsOfficeX = gpsOffice.getGPSOfficeCoordinates()[0];
 				double gpsOfficeY = gpsOffice.getGPSOfficeCoordinates()[1];
