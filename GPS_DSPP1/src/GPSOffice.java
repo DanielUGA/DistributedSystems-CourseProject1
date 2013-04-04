@@ -91,19 +91,13 @@ public class GPSOffice implements GPSOfficeRef {
 			try {
 
 				gpsOffice = (GPSOfficeRef) registry.lookup(office);
+				if(gpsOffice == null)
+					continue;
+				
 				allGPSOffices.add(gpsOffice);
 
-				try {
-					if (gpsOffice.getGPSOfficeName().equals(name)) {
-						continue;
-					}
-				} catch (java.rmi.ConnectException e) {
-					// When the GPSOffice is externally killed, the registry
-					// takes some time to unbind it. If a look up is made
-					// meanwhile, the unbound object is also return in the list
-					// of the lookup
+				if (gpsOffice.getGPSOfficeName().equals(name)) 
 					continue;
-				}
 
 				double gpsOfficeX = gpsOffice.getGPSOfficeCoordinates()[0];
 				double gpsOfficeY = gpsOffice.getGPSOfficeCoordinates()[1];
@@ -149,11 +143,11 @@ public class GPSOffice implements GPSOfficeRef {
 					else
 						throw new Exception("Package lost");
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(
 							currentOffice, trackingNumber, x2, y2, 3));
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(
 							currentOffice, trackingNumber, x2, y2, 3));
 				}
@@ -207,7 +201,7 @@ public class GPSOffice implements GPSOfficeRef {
 				try {
 					examinePackage(tempTrack, x2, y2, officeListener);
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		});
@@ -279,7 +273,7 @@ public class GPSOffice implements GPSOfficeRef {
 				forwardPackage(office, trackingNumber, x2, y2, officeListener);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
 					x2, y2, 3));
 		}
