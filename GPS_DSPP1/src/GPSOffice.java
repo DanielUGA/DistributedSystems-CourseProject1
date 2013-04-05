@@ -143,40 +143,37 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public synchronized void forwardPackage(final GPSOfficeRef office,
+	public synchronized void forwardPackage(GPSOfficeRef office,
 			final long trackingNumber, final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
 		final GPSOffice currentOffice = this;
 
-		reaper.schedule(new Runnable() {
-			public void run() {
-				try {
-					String officeName = office.getGPSOfficeName();
-					GPSOfficeRef office = (GPSOfficeRef) registry
-							.lookup(officeName);
-					if (office != null) {
-						eventGenerator.reportEvent(new GPSOfficeEvent(
-								currentOffice, trackingNumber, x2, y2, 2));
-						office.checkPackage(trackingNumber, x2, y2,
-								officeListener);
-					} else {
-						eventGenerator.reportEvent(new GPSOfficeEvent(
-								currentOffice, trackingNumber, x2, y2, 3));
-					}
-
-				} catch (RemoteException e) {
-					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(
-							currentOffice, trackingNumber, x2, y2, 3));
-				} catch (Exception e) {
-					e.printStackTrace();
-					eventGenerator.reportEvent(new GPSOfficeEvent(
-							currentOffice, trackingNumber, x2, y2, 3));
-				}
+		// reaper.schedule(new Runnable() {
+		// public void run() {
+		try {
+			office = (GPSOfficeRef) registry.lookup(office.getGPSOfficeName());
+			if (office != null) {
+				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
+						trackingNumber, x2, y2, 2));
+				office.checkPackage(trackingNumber, x2, y2, officeListener);
+			} else {
+				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
+						trackingNumber, x2, y2, 3));
 			}
-		}, 0, TimeUnit.SECONDS);
+
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
+					trackingNumber, x2, y2, 3));
+		} catch (Exception e) {
+			e.printStackTrace();
+			eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
+					trackingNumber, x2, y2, 3));
+		}
+
+		// }, 0, TimeUnit.SECONDS);
 
 	}
 
@@ -229,9 +226,7 @@ public class GPSOffice implements GPSOfficeRef {
 		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
 				y2, 1));
 
-		Thread t = new Thread(new Runnable() {
-
-			@Override
+		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
 					examinePackage(tempTrack, x2, y2, officeListener);
@@ -239,9 +234,9 @@ public class GPSOffice implements GPSOfficeRef {
 					e.printStackTrace();
 				}
 			}
-		});
 
-		t.start();
+		}, 0, TimeUnit.SECONDS);
+
 		return trackingNumber;
 	}
 
