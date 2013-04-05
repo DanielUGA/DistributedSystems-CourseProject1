@@ -16,7 +16,9 @@ public interface GPSOfficeRef extends Remote {
 	 * which it returns the tracking number back to the Customer.
 	 * 
 	 * @param x
+	 *            x co-ordinate of the destination
 	 * @param y
+	 *            y co-ordinate of the destination
 	 * @param officeListener
 	 *            an instance of {@linkplain GPSOfficeEventListener} that is
 	 *            added to the {@linkplain GPSOffice} instances to which the
@@ -26,83 +28,124 @@ public interface GPSOfficeRef extends Remote {
 	 *             exception thrown when a Remote Object is not found
 	 * @throws NotBoundException
 	 *             exception thrown when lookup on Registry Server fails
-	 * @throws InterruptedException exception thrown when a Thread is interrupted.
+	 * @throws InterruptedException
+	 *             exception thrown when a Thread is interrupted.
 	 */
 	public long checkPackage(double x, double y,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException;
 
 	/**
-	 * @param office
+	 * @param officeName
+	 *            name of the {@linkplain GPSOffice} to which the package is to
+	 *            be sent
 	 * @param trackingNumber
+	 *            tracking number of the package
 	 * @param x2
+	 *            x co-ordinate of the destination
 	 * @param y2
+	 *            y co-ordination of the destionation
 	 * @param officeListener
+	 *            {@linkplain GPSOfficeEventListener} listener to be added to
+	 *            the next GPS Office
 	 * @throws RemoteException
+	 *             exception thrown when the next GPS Office is not found during
+	 *             lookup
 	 */
 	public void forwardPackage(String officeName, final long trackingNumber,
 			final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException;
 
-	// called from constructor
 	/**
-	 * @param trackingNumber
-	 * @param x2
-	 * @param y2
+	 * Generates the neighbors of the current node by looking up in the registry
+	 * and fetching all the {@linkplain GPSOffice} in the registry. It will
+	 * update the Neighbor list in the {@linkplain GPSOffice} class
+	 * 
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
-	public void generateNeighbors(long trackingNumber, final double x2,
-			final double y2) throws RemoteException;
+	public void generateNeighbors() throws RemoteException;
 
 	/**
-	 * @return
+	 * Returns the name of the <TT>this</TT> office
+	 * 
+	 * @return name of the {@linkplain GPSOffice}
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public String getGPSOfficeName() throws RemoteException;
 
 	/**
-	 * @return
+	 * Returns the x and y (double) co-ordinates of <tt>this</tt> office
+	 * 
+	 * @return a double array with two elements
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public double[] getGPSOfficeCoordinates() throws RemoteException;
 
 	/**
-	 * @return
+	 * Returns the <TT>List</TT> of {@linkplain Neighbor}s of <TT>this</TT>
+	 * office
+	 * 
+	 * @return List of {@linkplain Neighbor}s
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public List<Neighbor> getNeighbors() throws RemoteException;
 
 	/**
+	 * Sets the neighbors of <tt>this</tt> office
+	 * 
 	 * @param offices
+	 *            <tt>List</tt> of neighbors
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public void setNeighbors(List<Neighbor> offices) throws RemoteException;
 
 	/**
+	 * Add listener to the office
+	 * 
 	 * @param listener
-	 * @return
+	 *            {@linkplain GPSOfficeEventListener}
+	 * @return Lease of the Listener
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener)
 			throws RemoteException;
 
 	/**
+	 * Add listener to the office along with the filter
+	 * 
 	 * @param listener
+	 *            {@linkplain GPSOfficeEventListener}
 	 * @param filter
-	 * @return
+	 *            {@linkplain GPSOfficeEventFilter}
+	 * @return Lease of the listener
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener,
 			RemoteEventFilter<GPSOfficeEvent> filter) throws RemoteException;
 
 	/**
+	 * Examines the package (with a 3 seconds delay), generates neighbors and
+	 * finds out where the package should be sent next.
+	 * 
 	 * @param trackingNumber
+	 *            tracking number of the package
 	 * @param x2
+	 *            x co-ordinate of the destination
 	 * @param y2
+	 *            y co-ordinate of the destionation
 	 * @param officeListener
-	 * @return
+	 *            listener of the office
+	 * @return void
 	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public void examinePackage(final long trackingNumber, final double x2,
 			final double y2,

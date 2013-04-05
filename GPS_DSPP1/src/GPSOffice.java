@@ -110,9 +110,16 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
+	/**
+	 * Generates the neighbors of the current node by looking up in the registry
+	 * and fetching all the {@linkplain GPSOffice} in the registry. It will
+	 * update the Neighbor list in the {@linkplain GPSOffice} class
+	 * 
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
-	public void generateNeighbors(long trackingNumber, final double x2,
-			final double y2) throws RemoteException {
+	public void generateNeighbors() throws RemoteException {
 
 		List<String> offices = registry.list("GPSOffice");
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
@@ -165,6 +172,24 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
+	
+	/**
+	 * @param officeName
+	 *            name of the {@linkplain GPSOffice} to which the package is to
+	 *            be sent
+	 * @param trackingNumber
+	 *            tracking number of the package
+	 * @param x2
+	 *            x co-ordinate of the destination
+	 * @param y2
+	 *            y co-ordination of the destionation
+	 * @param officeListener
+	 *            {@linkplain GPSOfficeEventListener} listener to be added to
+	 *            the next GPS Office
+	 * @throws RemoteException
+	 *             exception thrown when the next GPS Office is not found during
+	 *             lookup
+	 */
 	@Override
 	public void forwardPackage(String officeName, final long trackingNumber,
 			final double x2, final double y2,
@@ -204,31 +229,87 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
+	
+	/**
+	 * Returns the name of the <TT>this</TT> office
+	 * 
+	 * @return name of the {@linkplain GPSOffice}
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public String getGPSOfficeName() throws RemoteException {
 		return name;
 	}
 
+	
+	/**
+	 * Returns the x and y (double) co-ordinates of <tt>this</tt> office
+	 * 
+	 * @return a double array with two elements
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public double[] getGPSOfficeCoordinates() throws RemoteException {
 		return new double[] { x, y };
 	}
 
+	
+	/**
+	 * Returns the <TT>List</TT> of {@linkplain Neighbor}s of <TT>this</TT>
+	 * office
+	 * 
+	 * @return List of {@linkplain Neighbor}s
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public List<Neighbor> getNeighbors() throws RemoteException {
 		return neighbors;
 	}
 
+	
+	/**
+	 * Sets the neighbors of <tt>this</tt> office
+	 * 
+	 * @param offices
+	 *            <tt>List</tt> of neighbors
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public void setNeighbors(List<Neighbor> offices) throws RemoteException {
 		neighbors = offices;
 	}
 
+	
+	/**
+	 * Add listener to the office
+	 * 
+	 * @param listener
+	 *            {@linkplain GPSOfficeEventListener}
+	 * @return Lease of the Listener
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener)
 			throws RemoteException {
 		return eventGenerator.addListener(listener);
 	}
 
+	
+	/**
+	 * Add listener to the office along with the filter
+	 * 
+	 * @param listener
+	 *            {@linkplain GPSOfficeEventListener}
+	 * @param filter
+	 *            {@linkplain GPSOfficeEventFilter}
+	 * @return Lease of the listener
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener,
 			RemoteEventFilter<GPSOfficeEvent> filter) throws RemoteException {
@@ -256,6 +337,23 @@ public class GPSOffice implements GPSOfficeRef {
 		return trackingNumber;
 	}
 
+	
+	/**
+	 * Examines the package (with a 3 seconds delay), generates neighbors and
+	 * finds out where the package should be sent next.
+	 * 
+	 * @param trackingNumber
+	 *            tracking number of the package
+	 * @param x2
+	 *            x co-ordinate of the destination
+	 * @param y2
+	 *            y co-ordinate of the destionation
+	 * @param officeListener
+	 *            listener of the office
+	 * @return void
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
+	 */
 	@Override
 	public void examinePackage(long trackingNumber, final double x2,
 			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener)
@@ -278,7 +376,7 @@ public class GPSOffice implements GPSOfficeRef {
 		GPSOfficeRef office = null;
 		try {
 
-			generateNeighbors(trackingNumber, x2, y2);
+			generateNeighbors();
 			// printNeighbors(this);
 
 			double destDist = getDistance(x, y, x2, y2);
