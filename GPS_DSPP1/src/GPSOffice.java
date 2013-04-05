@@ -30,6 +30,7 @@ public class GPSOffice implements GPSOfficeRef {
 	private RegistryProxy registry;
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
 	private ScheduledExecutorService reaper;
+	private static String latestOffice;
 
 	/**
 	 * @param args
@@ -37,7 +38,7 @@ public class GPSOffice implements GPSOfficeRef {
 	 */
 	public GPSOffice(String[] args) throws IOException {
 
-		reaper = Executors.newSingleThreadScheduledExecutor();
+		reaper = Executors.newScheduledThreadPool(1000);
 
 		if (args.length != 5) {
 			throw new IllegalArgumentException(
@@ -88,8 +89,8 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public synchronized void generateNeighbors(long trackingNumber,
-			final double x2, final double y2) throws RemoteException {
+	public void generateNeighbors(long trackingNumber, final double x2,
+			final double y2) throws RemoteException {
 
 		List<String> offices = registry.list("GPSOffice");
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
@@ -143,37 +144,38 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public synchronized void forwardPackage(GPSOfficeRef office,
-			final long trackingNumber, final double x2, final double y2,
+	public void forwardPackage(String officeName, final long trackingNumber,
+			final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
 		final GPSOffice currentOffice = this;
 
-		// reaper.schedule(new Runnable() {
-		// public void run() {
 		try {
-			office = (GPSOfficeRef) registry.lookup(office.getGPSOfficeName());
+
+			GPSOfficeRef office = (GPSOfficeRef) registry.lookup(officeName);
 			if (office != null) {
-				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
-						trackingNumber, x2, y2, 2));
-				office.checkPackage(trackingNumber, x2, y2, officeListener);
+				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice
+						.getGPSOfficeName(), trackingNumber, x2, y2, 2));
+				office.examinePackage(trackingNumber, x2, y2, officeListener);
 			} else {
-				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
-						trackingNumber, x2, y2, 3));
+				eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice
+						.getGPSOfficeName(), trackingNumber, x2, y2, 3));
 			}
 
 		} catch (RemoteException e) {
-			e.printStackTrace();
-			eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
-					trackingNumber, x2, y2, 3));
+			if (latestOffice == officeName) {
+				e.printStackTrace();
+				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+						trackingNumber, x2, y2, 3));
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			eventGenerator.reportEvent(new GPSOfficeEvent(currentOffice,
-					trackingNumber, x2, y2, 3));
+			if (latestOffice == officeName) {
+				e.printStackTrace();
+				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+						trackingNumber, x2, y2, 3));
+			}
 		}
-
-		// }, 0, TimeUnit.SECONDS);
 
 	}
 
@@ -209,22 +211,17 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public synchronized long checkPackage(long trackingNumber, final double x2,
+	public long checkPackage(long trackingNumber, final double x2,
 			final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException {
 
+		latestOffice = this.name;
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
 		}
 
-		GPSOfficeEventFilter filter = new GPSOfficeEventFilter(trackingNumber);
-		addListener(officeListener, filter);
-
 		final long tempTrack = trackingNumber;
-
-		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
-				y2, 1));
 
 		reaper.schedule(new Runnable() {
 			public void run() {
@@ -241,17 +238,21 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public synchronized void examinePackage(long trackingNumber,
-			final double x2, final double y2,
-			RemoteEventListener<GPSOfficeEvent> officeListener)
+	public void examinePackage(long trackingNumber, final double x2,
+			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
+
+		GPSOfficeEventFilter filter = new GPSOfficeEventFilter(trackingNumber);
+		addListener(officeListener, filter);
+		eventGenerator.reportEvent(new GPSOfficeEvent(this.getGPSOfficeName(),
+				trackingNumber, x2, y2, 1));
 
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
-			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
-					x2, y2, 3));
+			eventGenerator.reportEvent(new GPSOfficeEvent(this
+					.getGPSOfficeName(), trackingNumber, x2, y2, 3));
 		}
 
 		GPSOfficeRef office = null;
@@ -278,8 +279,8 @@ public class GPSOffice implements GPSOfficeRef {
 			if (destDist <= neigh[0] && destDist <= neigh[1]
 					&& destDist <= neigh[2]) {
 				// System.out.println("direct");
-				eventGenerator.reportEvent(new GPSOfficeEvent(this,
-						trackingNumber, x2, y2, 4));
+				eventGenerator.reportEvent(new GPSOfficeEvent(this
+						.getGPSOfficeName(), trackingNumber, x2, y2, 4));
 			} else {
 
 				// System.out.println("neigh");
@@ -305,13 +306,14 @@ public class GPSOffice implements GPSOfficeRef {
 								.get(2).getGpsOffice().getGPSOfficeName());
 					}
 				}
-				forwardPackage(office, trackingNumber, x2, y2, officeListener);
+				forwardPackage(office.getGPSOfficeName(), trackingNumber, x2,
+						y2, officeListener);
 
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
-					x2, y2, 3));
+			eventGenerator.reportEvent(new GPSOfficeEvent(this
+					.getGPSOfficeName(), trackingNumber, x2, y2, 3));
 		}
 
 	}

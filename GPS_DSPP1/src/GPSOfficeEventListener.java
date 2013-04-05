@@ -25,33 +25,26 @@ public class GPSOfficeEventListener implements
 	 */
 	@Override
 	public void report(long arg0, GPSOfficeEvent event) throws RemoteException {
-		try {
-
-			if (event.getStatus() == LOST) {
-				System.out.println("Package number " + event.getTrackingId()
-						+ " lost by " + event.getGpsOffice().getGPSOfficeName()
-						+ " office");
-				if (shutDown)
-					System.exit(1);
-			} else if (event.getStatus() == ARRIVED) {
-				System.out.println("Package number " + event.getTrackingId()
-						+ " arrived at "
-						+ event.getGpsOffice().getGPSOfficeName() + " office");
-			} else if (event.getStatus() == DEPARTED) {
-				System.out.println("Package number " + event.getTrackingId()
-						+ " departed from "
-						+ event.getGpsOffice().getGPSOfficeName() + " office");
-			} else {
-				System.out.println("Package number " + event.getTrackingId()
-						+ " delivered from "
-						+ event.getGpsOffice().getGPSOfficeName()
-						+ " office to " + "(" + event.getX() + ","
-						+ event.getY() + ")");
-				if (shutDown)
-					System.exit(1);
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
+		
+		
+		if (event.getStatus() == LOST) {
+			System.out.println("Package number " + event.getTrackingId()
+					+ " lost by " + event.getOfficeName() + " office");
+			if (shutDown)
+				System.exit(1);
+		} else if (event.getStatus() == ARRIVED) {
+			System.out.println("Package number " + event.getTrackingId()
+					+ " arrived at " + event.getOfficeName() + " office");
+		} else if (event.getStatus() == DEPARTED) {
+			System.out.println("Package number " + event.getTrackingId()
+					+ " departed from " + event.getOfficeName() + " office");
+		} else {
+			System.out.println("Package number " + event.getTrackingId()
+					+ " delivered from " + event.getOfficeName()
+					+ " office to " + "(" + event.getX() + "," + event.getY()
+					+ ")");
+			if (shutDown)
+				System.exit(1);
 		}
 	}
 

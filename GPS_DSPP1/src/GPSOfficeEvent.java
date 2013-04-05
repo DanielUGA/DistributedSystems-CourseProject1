@@ -6,12 +6,26 @@ import edu.rit.ds.RemoteEvent;
  */
 public class GPSOfficeEvent extends RemoteEvent {
 
-	private GPSOfficeRef gpsOffice;
+	private String officeName;
 	private long trackingId;
 	private double x;
 	private double y;
 	private int status;
 
+	
+	/**
+	 * @return
+	 */
+	public String getOfficeName() {
+		return officeName;
+	}
+
+	/**
+	 * @param officeName
+	 */
+	public void setOfficeName(String officeName) {
+		this.officeName = officeName;
+	}
 	/**
 	 * @return
 	 */
@@ -26,19 +40,6 @@ public class GPSOfficeEvent extends RemoteEvent {
 		this.status = status;
 	}
 
-	/**
-	 * @return
-	 */
-	public GPSOfficeRef getGpsOffice() {
-		return gpsOffice;
-	}
-
-	/**
-	 * @param gpsOffice
-	 */
-	public void setGpsOffice(GPSOfficeRef gpsOffice) {
-		this.gpsOffice = gpsOffice;
-	}
 
 	/**
 	 * @return
@@ -91,10 +92,10 @@ public class GPSOfficeEvent extends RemoteEvent {
 	 * @param yCoord
 	 * @param status
 	 */
-	public GPSOfficeEvent(GPSOfficeRef office, long id, double xCoord,
+	public GPSOfficeEvent(String office, long id, double xCoord,
 			double yCoord, int status) {
 
-		gpsOffice = office;
+		officeName = office;
 		trackingId = id;
 		x = xCoord;
 		y = yCoord;
