@@ -46,7 +46,8 @@ public class Headquarters {
 			};
 			UnicastRemoteObject.exportObject(registryListener, 0);
 
-			officeListener = new GPSOfficeEventListener();
+			officeListener = new GPSOfficeEventListener(false);
+			
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
 			registryFilter = new RegistryEventFilter().reportType("GPSOffice")

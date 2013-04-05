@@ -57,7 +57,7 @@ public class Customer {
 
 			registry = new RegistryProxy(host, port);
 
-			officeListener = new GPSOfficeEventListener();
+			officeListener = new GPSOfficeEventListener(true);
 
 			UnicastRemoteObject.exportObject(officeListener, 0);
 

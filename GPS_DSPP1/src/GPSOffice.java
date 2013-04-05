@@ -19,7 +19,7 @@ import edu.rit.ds.registry.RegistryProxy;
 
 /**
  * @author Punit
- *
+ * 
  */
 public class GPSOffice implements GPSOfficeRef {
 
@@ -61,6 +61,8 @@ public class GPSOffice implements GPSOfficeRef {
 					"X and Y co-ordinates should be Double value");
 		}
 
+		eventGenerator = new RemoteEventGenerator<GPSOfficeEvent>();
+
 		registry = new RegistryProxy(host, port);
 		UnicastRemoteObject.exportObject(this, 0);
 
@@ -83,15 +85,11 @@ public class GPSOffice implements GPSOfficeRef {
 			throw e;
 		}
 
-		eventGenerator = new RemoteEventGenerator<GPSOfficeEvent>();
-
 	}
 
-
-
 	@Override
-	public void generateNeighbors(long trackingNumber, final double x2,
-			final double y2) throws RemoteException {
+	public synchronized void generateNeighbors(long trackingNumber,
+			final double x2, final double y2) throws RemoteException {
 
 		List<String> offices = registry.list("GPSOffice");
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
@@ -102,15 +100,15 @@ public class GPSOffice implements GPSOfficeRef {
 			try {
 
 				gpsOffice = (GPSOfficeRef) registry.lookup(office);
-				if(gpsOffice == null)
+				if (gpsOffice == null)
 					continue;
-				
+
 				allGPSOffices.add(gpsOffice);
-				
+
 				try {
-					if (gpsOffice.getGPSOfficeName().equals(name)) 
+					if (gpsOffice.getGPSOfficeName().equals(name))
 						continue;
-					
+
 				} catch (java.rmi.ConnectException e) {
 					// When the GPSOffice is externally killed, the registry
 					// takes some time to unbind it. If a look up is made
@@ -126,9 +124,9 @@ public class GPSOffice implements GPSOfficeRef {
 				Neighbor neighbor = new Neighbor(gpsOffice, dist);
 				gpsNeighbors.add(neighbor);
 			} catch (NotBoundException e) {
-				// e.printStackTrace();
-				eventGenerator.reportEvent(new GPSOfficeEvent(this,
-						trackingNumber, x2, y2, 3));
+				e.printStackTrace();
+				// eventGenerator.reportEvent(new GPSOfficeEvent(this,
+				// trackingNumber, x2, y2, 3));
 			}
 		}
 
@@ -151,28 +149,34 @@ public class GPSOffice implements GPSOfficeRef {
 			throws RemoteException {
 
 		final GPSOffice currentOffice = this;
+
 		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
-					eventGenerator.reportEvent(new GPSOfficeEvent(
-							currentOffice, trackingNumber, x2, y2, 2));
-
-					if (office != null)
+					String officeName = office.getGPSOfficeName();
+					GPSOfficeRef office = (GPSOfficeRef) registry
+							.lookup(officeName);
+					if (office != null) {
+						eventGenerator.reportEvent(new GPSOfficeEvent(
+								currentOffice, trackingNumber, x2, y2, 2));
 						office.checkPackage(trackingNumber, x2, y2,
 								officeListener);
-					else
-						throw new Exception("Package lost");
+					} else {
+						eventGenerator.reportEvent(new GPSOfficeEvent(
+								currentOffice, trackingNumber, x2, y2, 3));
+					}
+
 				} catch (RemoteException e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(
 							currentOffice, trackingNumber, x2, y2, 3));
 				} catch (Exception e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(
 							currentOffice, trackingNumber, x2, y2, 3));
 				}
 			}
-		}, 3, TimeUnit.SECONDS);
+		}, 0, TimeUnit.SECONDS);
 
 	}
 
@@ -200,11 +204,11 @@ public class GPSOffice implements GPSOfficeRef {
 			throws RemoteException {
 		return eventGenerator.addListener(listener);
 	}
-	
+
 	@Override
-	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener, RemoteEventFilter<GPSOfficeEvent> filter)
-			throws RemoteException {
-		return eventGenerator.addListener(listener,filter);
+	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener,
+			RemoteEventFilter<GPSOfficeEvent> filter) throws RemoteException {
+		return eventGenerator.addListener(listener, filter);
 	}
 
 	@Override
@@ -216,11 +220,14 @@ public class GPSOffice implements GPSOfficeRef {
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
 		}
-		
+
 		GPSOfficeEventFilter filter = new GPSOfficeEventFilter(trackingNumber);
-		addListener(officeListener,filter);
+		addListener(officeListener, filter);
 
 		final long tempTrack = trackingNumber;
+
+		eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber, x2,
+				y2, 1));
 
 		Thread t = new Thread(new Runnable() {
 
@@ -229,7 +236,7 @@ public class GPSOffice implements GPSOfficeRef {
 				try {
 					examinePackage(tempTrack, x2, y2, officeListener);
 				} catch (RemoteException e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		});
@@ -239,14 +246,22 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public void examinePackage(long trackingNumber, final double x2,
-			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener)
+	public synchronized void examinePackage(long trackingNumber,
+			final double x2, final double y2,
+			RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {
 
 		try {
-
+			Thread.sleep(3000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
-					x2, y2, 1));
+					x2, y2, 3));
+		}
+
+		GPSOfficeRef office = null;
+		try {
+
 			generateNeighbors(trackingNumber, x2, y2);
 			// printNeighbors(this);
 
@@ -265,10 +280,8 @@ public class GPSOffice implements GPSOfficeRef {
 				}
 			}
 
-			GPSOfficeRef office = null;
 			if (destDist <= neigh[0] && destDist <= neigh[1]
 					&& destDist <= neigh[2]) {
-				Thread.sleep(3000);
 				// System.out.println("direct");
 				eventGenerator.reportEvent(new GPSOfficeEvent(this,
 						trackingNumber, x2, y2, 4));
@@ -297,11 +310,11 @@ public class GPSOffice implements GPSOfficeRef {
 								.get(2).getGpsOffice().getGPSOfficeName());
 					}
 				}
-
 				forwardPackage(office, trackingNumber, x2, y2, officeListener);
+
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(this, trackingNumber,
 					x2, y2, 3));
 		}

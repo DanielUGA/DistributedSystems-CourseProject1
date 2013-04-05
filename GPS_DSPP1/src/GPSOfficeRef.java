@@ -89,6 +89,7 @@ public interface GPSOfficeRef extends Remote {
 	 * @param x2
 	 * @param y2
 	 * @param officeListener
+	 * @return 
 	 * @throws RemoteException
 	 */
 	public void examinePackage(final long trackingNumber, final double x2,
