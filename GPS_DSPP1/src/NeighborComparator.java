@@ -1,8 +1,10 @@
+import java.util.Collections;
 import java.util.Comparator;
 
 
 /**
- * @author Punit
+ * class NeighborComparator compares the {@linkplain Neighbor}s while sorting using {@linkplain Collections}.sort()
+ * @author Punit 
  *
  */
 public class NeighborComparator implements Comparator<Neighbor>{

@@ -1,6 +1,7 @@
 import edu.rit.ds.RemoteEventFilter;
 
 /**
+ * class GPSOfficeEventFilter defines the filter to filter the GPS office events.
  * @author Punit
  *
  */
@@ -10,7 +11,8 @@ public class GPSOfficeEventFilter implements RemoteEventFilter<GPSOfficeEvent> {
 	private long trackingNumber;
 
 	/**
-	 * @param trackingNumber
+	 * Set the tracking number in the filter.
+	 * @param trackingNumber tracking number of the package
 	 */
 	public GPSOfficeEventFilter(long trackingNumber) {
 		this.trackingNumber = trackingNumber;

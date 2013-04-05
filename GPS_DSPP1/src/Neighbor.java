@@ -1,43 +1,53 @@
 import java.io.Serializable;
 
-
 /**
+ * class Neighbor represents the neighbor of the GPS Office
+ * 
  * @author Punit
- *
+ * 
  */
-public class Neighbor implements Serializable{
-	
+public class Neighbor implements Serializable {
+
 	private GPSOfficeRef gpsOffice;
 	private double distance;
-	
+
 	/**
-	 * @param office
-	 * @param dist
+	 * Constructor takes GPS Office and distance from the source GPS office
+	 * @param office the neighbor office
+	 * @param dist distance between the offices
 	 */
-	public Neighbor(GPSOfficeRef office, double dist){
+	public Neighbor(GPSOfficeRef office, double dist) {
 		gpsOffice = office;
 		distance = dist;
 	}
+
 	/**
-	 * @return
+	 *  Get the neighbor office
+	 * @return neighbor GPS office 
 	 */
 	public GPSOfficeRef getGpsOffice() {
 		return gpsOffice;
 	}
+
 	/**
-	 * @param gpsOffice
+	 * Set the neighbor GPS office
+	 * @param gpsOffice GPS office to be set
 	 */
 	public void setGpsOffice(GPSOfficeRef gpsOffice) {
 		this.gpsOffice = gpsOffice;
 	}
+
 	/**
-	 * @return
+	 * Get the distance between the Offices
+	 * @return distance
 	 */
 	public double getDistance() {
 		return distance;
 	}
+
 	/**
-	 * @param distance
+	 * Set the distance between the Offices
+	 * @param distance distance to be set
 	 */
 	public void setDistance(double distance) {
 		this.distance = distance;
