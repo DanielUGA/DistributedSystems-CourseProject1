@@ -54,49 +54,8 @@ public class Customer {
 
 			registry = new RegistryProxy(host, port);
 			
-			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
-				public void report(long seqnum, GPSOfficeEvent event) {
-					// Print tracking info on the console.
-
-					//if (trackingNumber == event.getTrackingId()) {
-
-						try {
-
-							if (event.getStatus() == 3) {
-								System.out.println("Package number "
-										+ event.getTrackingId()
-										+ " lost by "
-										+ event.getGpsOffice()
-												.getGPSOfficeName()+" office");
-								System.exit(1);
-							} else if (event.getStatus() == 1) {
-								System.out.println("Package number "
-										+ event.getTrackingId()
-										+ " arrived at "
-										+ event.getGpsOffice()
-												.getGPSOfficeName()+" office");
-							} else if (event.getStatus() == 2) {
-								System.out.println("Package number "
-										+ event.getTrackingId()
-										+ " departed from "
-										+ event.getGpsOffice()
-												.getGPSOfficeName()+" office");
-							} else {
-								System.out.println("Package number "
-										+ event.getTrackingId()
-										+ " delivered from "
-										+ event.getGpsOffice()
-												.getGPSOfficeName()
-										+ " office to " + "(" + event.getX()
-										+ "," + event.getY() + ")");
-								System.exit(1);
-							}
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}
-				//}
-			};
+			officeListener = new GPSOfficeEventListener();
+			
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);

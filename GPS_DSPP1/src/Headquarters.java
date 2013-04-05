@@ -10,7 +10,7 @@ import edu.rit.ds.registry.RegistryProxy;
 
 /**
  * @author Punit
- *
+ * 
  */
 public class Headquarters {
 
@@ -38,73 +38,27 @@ public class Headquarters {
 
 		try {
 			registry = new RegistryProxy(host, port);
-		} catch (RemoteException e2) {
-			e2.printStackTrace();
-		}
-		
-		registryListener = new RegistryEventListener() {
-			public void report(long seqnum, RegistryEvent event) {
-				listenToOffice(event.objectName());
-			}
-		};
-		try {
-			UnicastRemoteObject.exportObject(registryListener, 0);
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
 
-		officeListener = new RemoteEventListener<GPSOfficeEvent>() {
-			public void report(long seqnum, GPSOfficeEvent event) {
-				// Print tracking info on the console.
-
-				try {
-
-					if (event.getStatus() == 3)
-						System.out.println("Package number "
-								+ event.getTrackingId() + " lost by "
-								+ event.getGpsOffice().getGPSOfficeName()+" office");
-					else if (event.getStatus() == 1)
-						System.out.println("Package number "
-								+ event.getTrackingId() + " arrived at "
-								+ event.getGpsOffice().getGPSOfficeName()+" office");
-					else if (event.getStatus() == 2) {
-						System.out.println("Package number "
-								+ event.getTrackingId() + " departed from "
-								+ event.getGpsOffice().getGPSOfficeName()+" office");
-					} else {
-						System.out.println("Package number "
-								+ event.getTrackingId() + " delivered from "
-								+ event.getGpsOffice().getGPSOfficeName()
-								+ " office to " + "(" + event.getX() + ","
-								+ event.getY() + ")");
-					}
-				} catch (RemoteException e) {
-					e.printStackTrace();
+			registryListener = new RegistryEventListener() {
+				public void report(long seqnum, RegistryEvent event) {
+					listenToOffice(event.objectName());
 				}
-			}
-		};
-		
-		try {
-			UnicastRemoteObject.exportObject(officeListener, 0);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+			};
+			UnicastRemoteObject.exportObject(registryListener, 0);
 
-		
-		registryFilter = new RegistryEventFilter().reportType("GPSOffice")
-				.reportBound();
-		try {
+			officeListener = new GPSOfficeEventListener();
+			UnicastRemoteObject.exportObject(officeListener, 0);
+
+			registryFilter = new RegistryEventFilter().reportType("GPSOffice")
+					.reportBound();
 			registry.addEventListener(registryListener, registryFilter);
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
-		
-		try {
+
 			for (String office : registry.list("GPSOffice")) {
 				listenToOffice(office);
 			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
+
+		} catch (RemoteException e2) {
+			e2.printStackTrace();
 		}
 
 	}
