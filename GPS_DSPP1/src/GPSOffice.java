@@ -145,7 +145,7 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public void forwardPackage(final GPSOfficeRef office,
+	public synchronized void forwardPackage(final GPSOfficeRef office,
 			final long trackingNumber, final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException {

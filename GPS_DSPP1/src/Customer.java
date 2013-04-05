@@ -7,10 +7,13 @@ import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
 /**
- * Class Customer represents customer using the GPS (Geographic Package Service)  
+ * Class Customer represents customer using the GPS (Geographic Package Service)
+ * to send a package to destination, given X and Y co-ordinates of the
+ * destination. 
  * 
  * @author Punit
- *
+ * @version 04-04-2013
+ * 
  */
 public class Customer {
 
@@ -53,9 +56,9 @@ public class Customer {
 		try {
 
 			registry = new RegistryProxy(host, port);
-			
+
 			officeListener = new GPSOfficeEventListener();
-			
+
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
