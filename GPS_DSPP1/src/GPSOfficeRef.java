@@ -62,10 +62,17 @@ public interface GPSOfficeRef extends Remote {
 	 * and fetching all the {@linkplain GPSOffice} in the registry. It will
 	 * update the Neighbor list in the {@linkplain GPSOffice} class
 	 * 
+	 * @param trackingNumber
+	 *            tracking number of the package
+	 * @param x2
+	 *            x co-ordinate of the destination
+	 * @param y2
+	 *            y co-ordinate of the destination
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
 	 */
-	public void generateNeighbors() throws RemoteException;
+	public void generateNeighbors(long trackingNumber, double x2, double y2)
+			throws RemoteException;
 
 	/**
 	 * Returns the name of the <TT>this</TT> office
@@ -146,11 +153,12 @@ public interface GPSOfficeRef extends Remote {
 	 * @return void
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
+	 * @throws InterruptedException 
 	 */
 	public void examinePackage(final long trackingNumber, final double x2,
 			final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
-			throws RemoteException;
+			throws RemoteException, InterruptedException;
 
 	/**
 	 * Calculates the distance between two GPS offices, given their X and Y

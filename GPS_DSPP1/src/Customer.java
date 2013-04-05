@@ -47,7 +47,7 @@ public class Customer {
 		try {
 			port = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
-			System.out.println("Port should be an integer value");
+			System.err.println("Port should be an integer value");
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -57,7 +57,7 @@ public class Customer {
 			x = Double.parseDouble(args[3]);
 			y = Double.parseDouble(args[4]);
 		} catch (NumberFormatException e) {
-			System.out.println("X and Y co-ordinates should be double value");
+			System.err.println("X and Y co-ordinates should be double value");
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -75,18 +75,17 @@ public class Customer {
 			trackingNumber = gpsOffice.checkPackage(x, y, officeListener);
 
 		} catch (RemoteException e) {
-			System.out.println("No Remote Server at host=" + host
+			System.err.println("No Remote Server at host=" + host
 					+ " and port=" + port);
 			System.exit(1);
 		} catch (NotBoundException e) {
-			System.out.println("No GPS Office in " + origin);
+			System.err.println("No GPS Office in " + origin);
 			System.exit(1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Packet lost");
 			System.exit(1);
 		}
 	}

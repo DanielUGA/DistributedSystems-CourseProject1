@@ -44,9 +44,9 @@ public class GPSOffice implements GPSOfficeRef {
 	 * 
 	 * @param args
 	 *            command line arguments
-	 * @throws IOException
+	 * @throws RemoteException
 	 */
-	public GPSOffice(String[] args) {
+	public GPSOffice(String[] args) throws RemoteException {
 
 		// Thread pool for sending packages simultaneously using different
 		// threads
@@ -55,7 +55,12 @@ public class GPSOffice implements GPSOfficeRef {
 		// Check if the number of command line arguments are correct
 		if (args.length != 5) {
 			throw new IllegalArgumentException(
-					"Usage: java Start GPSOffice <host> <port> <name> <X> <Y>");
+					"Usage: java Start GPSOffice <host> <port> <name> <X> <Y>"
+							+ "\n<host> is the name of the host computer where the Registry Server is running."
+							+ "\n<port> is the port number to which the Registry Server is listening"
+							+ "\n<name> is the name of the city where the GPS office is located"
+							+ "\n<X> is the GPS office's X coordinate (type double)"
+							+ "\n<Y> is the GPS office's Y coordinate (type double)");
 		}
 
 		String host = args[0];
@@ -107,6 +112,7 @@ public class GPSOffice implements GPSOfficeRef {
 			} catch (NoSuchObjectException e2) {
 				e2.printStackTrace();
 			}
+			throw e;
 		}
 
 	}
@@ -116,11 +122,18 @@ public class GPSOffice implements GPSOfficeRef {
 	 * and fetching all the {@linkplain GPSOffice} in the registry. It will
 	 * update the Neighbor list in the {@linkplain GPSOffice} class
 	 * 
+	 * @param trackingNumber
+	 *            tracking number of the package
+	 * @param x2
+	 *            x co-ordinate of the destination
+	 * @param y2
+	 *            y co-ordinate of the destination
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
 	 */
 	@Override
-	public void generateNeighbors() throws RemoteException {
+	public void generateNeighbors(long trackingNumber, double x2, double y2)
+			throws RemoteException {
 
 		List<String> offices = registry.list("GPSOffice");
 		List<Neighbor> gpsNeighbors = new ArrayList<Neighbor>();
@@ -155,9 +168,9 @@ public class GPSOffice implements GPSOfficeRef {
 				Neighbor neighbor = new Neighbor(gpsOffice, dist);
 				gpsNeighbors.add(neighbor);
 			} catch (NotBoundException e) {
-				e.printStackTrace();
-				// eventGenerator.reportEvent(new GPSOfficeEvent(this,
-				// trackingNumber, x2, y2, 3));
+				// e.printStackTrace();
+				eventGenerator.reportEvent(new GPSOfficeEvent(this
+						.getGPSOfficeName(), trackingNumber, x2, y2, 3));
 			}
 		}
 
@@ -211,17 +224,17 @@ public class GPSOffice implements GPSOfficeRef {
 			}
 
 		} catch (RemoteException e) {
-			System.out.println("here");
-			System.out.println(latestOffice);
-			System.out.println(officeName);
+			// System.out.println("here");
+			// System.out.println(latestOffice);
+			// System.out.println(officeName);
 			if (latestOffice == officeName) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 						trackingNumber, x2, y2, 3));
 			}
 		} catch (Exception e) {
 			if (latestOffice == officeName) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 						trackingNumber, x2, y2, 3));
 			}
@@ -317,12 +330,15 @@ public class GPSOffice implements GPSOfficeRef {
 
 		final long trackingNumber = System.currentTimeMillis();
 
+		final String officeName = this.getGPSOfficeName();
 		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
 					examinePackage(trackingNumber, x2, y2, officeListener);
-				} catch (RemoteException e) {
-					e.printStackTrace();
+				} catch (RemoteException | InterruptedException e) {
+					// e.printStackTrace();
+					eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+							trackingNumber, x2, y2, 3));
 				}
 			}
 
@@ -346,11 +362,12 @@ public class GPSOffice implements GPSOfficeRef {
 	 * @return void
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
+	 * @throws InterruptedException 
 	 */
 	@Override
 	public void examinePackage(long trackingNumber, final double x2,
 			final double y2, RemoteEventListener<GPSOfficeEvent> officeListener)
-			throws RemoteException {
+			throws RemoteException, InterruptedException {
 
 		GPSOfficeEventFilter filter = new GPSOfficeEventFilter(trackingNumber);
 		addListener(officeListener, filter);
@@ -361,15 +378,16 @@ public class GPSOffice implements GPSOfficeRef {
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+			//e1.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(this
 					.getGPSOfficeName(), trackingNumber, x2, y2, 3));
+			throw e1;
 		}
 
 		GPSOfficeRef office = null;
 		try {
 
-			generateNeighbors();
+			generateNeighbors(trackingNumber, x2, y2);
 			// printNeighbors(this);
 
 			double destDist = getDistance(x, y, x2, y2);
