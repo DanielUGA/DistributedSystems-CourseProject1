@@ -8,6 +8,10 @@ import edu.rit.ds.RemoteEventListener;
  */
 public class GPSOfficeEventListener implements
 		RemoteEventListener<GPSOfficeEvent> {
+	
+	private static final int ARRIVED = 1;
+	private static final int DEPARTED = 2;
+	private static final int LOST = 3;
 
 	/* (non-Javadoc)
 	 * @see edu.rit.ds.RemoteEventListener#report(long, edu.rit.ds.RemoteEvent)
@@ -16,20 +20,20 @@ public class GPSOfficeEventListener implements
 	public void report(long arg0, GPSOfficeEvent event) throws RemoteException {
 		try {
 
-			if (event.getStatus() == 3) {
+			if (event.getStatus() == LOST) {
 				System.out.println("Package number "
 						+ event.getTrackingId()
 						+ " lost by "
 						+ event.getGpsOffice()
 								.getGPSOfficeName()+" office");
 				System.exit(1);
-			} else if (event.getStatus() == 1) {
+			} else if (event.getStatus() == ARRIVED) {
 				System.out.println("Package number "
 						+ event.getTrackingId()
 						+ " arrived at "
 						+ event.getGpsOffice()
 								.getGPSOfficeName()+" office");
-			} else if (event.getStatus() == 2) {
+			} else if (event.getStatus() == DEPARTED) {
 				System.out.println("Package number "
 						+ event.getTrackingId()
 						+ " departed from "
