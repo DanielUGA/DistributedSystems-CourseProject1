@@ -3,6 +3,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import edu.rit.ds.Lease;
+import edu.rit.ds.RemoteEventFilter;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
 
@@ -75,6 +76,15 @@ public interface GPSOfficeRef extends Remote {
 			throws RemoteException;
 	
 	/**
+	 * @param listener
+	 * @param filter
+	 * @return
+	 * @throws RemoteException
+	 */
+	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener,
+			RemoteEventFilter<GPSOfficeEvent> filter) throws RemoteException;
+	
+	/**
 	 * @param trackingNumber
 	 * @param x2
 	 * @param y2
@@ -83,5 +93,6 @@ public interface GPSOfficeRef extends Remote {
 	 */
 	public void examinePackage(final long trackingNumber, final double x2,
 			final double y2, final RemoteEventListener<GPSOfficeEvent> officeListener) throws RemoteException;
+
 
 }

@@ -7,6 +7,8 @@ import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
 /**
+ * Class Customer represents customer using the GPS (Geographic Package Service)  
+ * 
  * @author Punit
  *
  */
@@ -52,13 +54,11 @@ public class Customer {
 
 			registry = new RegistryProxy(host, port);
 			
-		
-
 			officeListener = new RemoteEventListener<GPSOfficeEvent>() {
 				public void report(long seqnum, GPSOfficeEvent event) {
 					// Print tracking info on the console.
 
-					if (trackingNumber == event.getTrackingId()) {
+					//if (trackingNumber == event.getTrackingId()) {
 
 						try {
 
@@ -95,7 +95,7 @@ public class Customer {
 							e.printStackTrace();
 						}
 					}
-				}
+				//}
 			};
 			UnicastRemoteObject.exportObject(officeListener, 0);
 

@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import edu.rit.ds.Lease;
+import edu.rit.ds.RemoteEventFilter;
 import edu.rit.ds.RemoteEventGenerator;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.AlreadyBoundException;
@@ -199,6 +200,12 @@ public class GPSOffice implements GPSOfficeRef {
 			throws RemoteException {
 		return eventGenerator.addListener(listener);
 	}
+	
+	@Override
+	public Lease addListener(RemoteEventListener<GPSOfficeEvent> listener, RemoteEventFilter<GPSOfficeEvent> filter)
+			throws RemoteException {
+		return eventGenerator.addListener(listener,filter);
+	}
 
 	@Override
 	public long checkPackage(long trackingNumber, final double x2,
@@ -209,7 +216,9 @@ public class GPSOffice implements GPSOfficeRef {
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
 		}
-		addListener(officeListener);
+		
+		GPSOfficeEventFilter filter = new GPSOfficeEventFilter(trackingNumber);
+		addListener(officeListener,filter);
 
 		final long tempTrack = trackingNumber;
 
