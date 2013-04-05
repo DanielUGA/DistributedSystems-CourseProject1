@@ -153,7 +153,7 @@ public interface GPSOfficeRef extends Remote {
 	 * @return void
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void examinePackage(final long trackingNumber, final double x2,
 			final double y2,
@@ -174,8 +174,10 @@ public interface GPSOfficeRef extends Remote {
 	 *            Y co-ordinate of the second GPS Office
 	 * @return distance between the two Offices, given their X and Y
 	 *         co-ordinates
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	public double getDistance(double tempX1, double tempY1, double tempX2,
-			double tempY2);
+			double tempY2) throws RemoteException;
 
 }

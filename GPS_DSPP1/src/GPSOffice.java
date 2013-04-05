@@ -91,6 +91,7 @@ public class GPSOffice implements GPSOfficeRef {
 			registry = new RegistryProxy(host, port);
 			UnicastRemoteObject.exportObject(this, 0);
 		} catch (RemoteException e1) {
+			e1.printStackTrace();
 			throw new IllegalArgumentException("No Remote Server at host="
 					+ host + " and port=" + port);
 		}
@@ -461,6 +462,8 @@ public class GPSOffice implements GPSOfficeRef {
 	 *            Y co-ordinate of the second GPS Office
 	 * @return distance between the two Offices, given their X and Y
 	 *         co-ordinates
+	 * @throws RemoteException
+	 *             exception thrown in the Remote object is not available
 	 */
 	@Override
 	public double getDistance(double tempX1, double tempY1, double tempX2,
