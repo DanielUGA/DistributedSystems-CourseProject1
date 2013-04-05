@@ -30,7 +30,7 @@ public class GPSOffice implements GPSOfficeRef {
 	private RegistryProxy registry;
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
 	private ScheduledExecutorService reaper;
-	private static String latestOffice;
+	public static String latestOffice;
 
 	/**
 	 * @param args
@@ -164,6 +164,9 @@ public class GPSOffice implements GPSOfficeRef {
 			}
 
 		} catch (RemoteException e) {
+			System.out.println("here");
+			System.out.println(latestOffice);
+			System.out.println(officeName);
 			if (latestOffice == officeName) {
 				e.printStackTrace();
 				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
@@ -216,7 +219,7 @@ public class GPSOffice implements GPSOfficeRef {
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException {
 
-		latestOffice = this.name;
+		
 		if (trackingNumber == 0l) {
 			trackingNumber = System.currentTimeMillis();
 		}
@@ -246,6 +249,7 @@ public class GPSOffice implements GPSOfficeRef {
 		addListener(officeListener, filter);
 		eventGenerator.reportEvent(new GPSOfficeEvent(this.getGPSOfficeName(),
 				trackingNumber, x2, y2, 1));
+		latestOffice = this.name;
 
 		try {
 			Thread.sleep(3000);
