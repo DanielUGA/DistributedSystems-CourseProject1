@@ -7,6 +7,17 @@ import edu.rit.ds.RemoteEventFilter;
 import edu.rit.ds.RemoteEventListener;
 import edu.rit.ds.registry.NotBoundException;
 
+
+/**
+ * interface GPSOffice represents an GPS Office in the Geographic Package Service
+ * (GPS) system. It binds to the Registry Server. It takes the package from the
+ * customer and routes it to the destination through it's neighbouring GPS
+ * Offices
+ * 
+ * @author Punit
+ * @version 04-05-2013
+ * 
+ */
 public interface GPSOfficeRef extends Remote {
 
 	/**
