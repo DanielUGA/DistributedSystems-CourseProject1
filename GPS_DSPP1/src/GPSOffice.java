@@ -18,6 +18,11 @@ import edu.rit.ds.registry.NotBoundException;
 import edu.rit.ds.registry.RegistryProxy;
 
 /**
+ * class GPSOffice represents an GPS Office in the Geographic Package Service
+ * (GPS) system. It binds to the Registry Server. It takes the package from the
+ * customer and routes it to the destination through it's neighbouring GPS
+ * Offices
+ * 
  * @author Punit
  * 
  */
@@ -33,13 +38,20 @@ public class GPSOffice implements GPSOfficeRef {
 	public static String latestOffice;
 
 	/**
+	 * This constructor takes values from the command line and binds the office
+	 * to the Registry Server
+	 * 
 	 * @param args
+	 *            command line arguments
 	 * @throws IOException
 	 */
-	public GPSOffice(String[] args) throws IOException {
+	public GPSOffice(String[] args) {
 
+		// Thread pool for sending packages simultaneously using different
+		// threads
 		reaper = Executors.newScheduledThreadPool(1000);
 
+		// Check if the number of command line arguments are correct
 		if (args.length != 5) {
 			throw new IllegalArgumentException(
 					"Usage: java Start GPSOffice <host> <port> <name> <X> <Y>");
@@ -48,12 +60,15 @@ public class GPSOffice implements GPSOfficeRef {
 		String host = args[0];
 		name = args[2];
 		int port;
+
+		// Check if the port is an Integer
 		try {
 			port = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
 			throw new NumberFormatException("Port has to be an Integer value");
 		}
 
+		// Check if the X and Y co-ordinates of the GPS Office are Double
 		try {
 			x = Double.parseDouble(args[3]);
 			y = Double.parseDouble(args[4]);
@@ -62,11 +77,19 @@ public class GPSOffice implements GPSOfficeRef {
 					"X and Y co-ordinates should be Double value");
 		}
 
+		// Create a RemoteEventGenerator object to report GPS Office events
 		eventGenerator = new RemoteEventGenerator<GPSOfficeEvent>();
 
-		registry = new RegistryProxy(host, port);
-		UnicastRemoteObject.exportObject(this, 0);
+		// Fetch the proxy for Registry Server
+		try {
+			registry = new RegistryProxy(host, port);
+			UnicastRemoteObject.exportObject(this, 0);
+		} catch (RemoteException e1) {
+			throw new IllegalArgumentException("No Remote Server at host="
+					+ host + " and port=" + port);
+		}
 
+		// Bind the GPS Office to the Registry
 		try {
 			registry.bind(name, this);
 		} catch (AlreadyBoundException e) {
@@ -75,15 +98,14 @@ public class GPSOffice implements GPSOfficeRef {
 			} catch (NoSuchObjectException e2) {
 				e2.printStackTrace();
 			}
-			throw new IllegalArgumentException("GPSOffice(): <name> = \""
-					+ name + "\" already exists");
+			throw new IllegalArgumentException("GPSOffice \"" + name
+					+ "\" already exists");
 		} catch (RemoteException e) {
 			try {
 				UnicastRemoteObject.unexportObject(this, true);
 			} catch (NoSuchObjectException e2) {
 				e2.printStackTrace();
 			}
-			throw e;
 		}
 
 	}
@@ -214,22 +236,16 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public long checkPackage(long trackingNumber, final double x2,
-			final double y2,
+	public long checkPackage(final double x2, final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException {
 
-		
-		if (trackingNumber == 0l) {
-			trackingNumber = System.currentTimeMillis();
-		}
-
-		final long tempTrack = trackingNumber;
+		final long trackingNumber = System.currentTimeMillis();
 
 		reaper.schedule(new Runnable() {
 			public void run() {
 				try {
-					examinePackage(tempTrack, x2, y2, officeListener);
+					examinePackage(trackingNumber, x2, y2, officeListener);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -323,13 +339,22 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	/**
+	 * Calculates the distance between two GPS offices, given their X and Y
+	 * co-ordinates
+	 * 
 	 * @param tempX1
+	 *            X co-ordinate of the first GPS Office
 	 * @param tempY1
+	 *            Y co-ordinate of the first Office
 	 * @param tempX2
+	 *            X co-ordinate of the second GPS Office
 	 * @param tempY2
-	 * @return
+	 *            Y co-ordinate of the second GPS Office
+	 * @return distance between the two Offices, given their X and Y
+	 *         co-ordinates
 	 */
-	private double getDistance(double tempX1, double tempY1, double tempX2,
+	@Override
+	public double getDistance(double tempX1, double tempY1, double tempX2,
 			double tempY2) {
 
 		return Math.sqrt(Math.pow((tempX1 - tempX2), 2)

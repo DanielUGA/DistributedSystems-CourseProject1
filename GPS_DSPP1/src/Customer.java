@@ -29,7 +29,7 @@ public class Customer {
 	 * Office), X(x co-ordinate of the destination), Y(y co-ordinate of the
 	 * destination)
 	 * 
-	 * @param args
+	 * @param args command line arguments
 	 */
 	public static void main(String[] args) {
 
@@ -72,7 +72,7 @@ public class Customer {
 
 			// Look up the origin Office specified by the user
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
-			trackingNumber = gpsOffice.checkPackage(0l, x, y, officeListener);
+			trackingNumber = gpsOffice.checkPackage(x, y, officeListener);
 
 		} catch (RemoteException e) {
 			System.out.println("No Remote Server at host=" + host
