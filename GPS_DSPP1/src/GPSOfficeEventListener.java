@@ -6,6 +6,7 @@ import edu.rit.ds.RemoteEventListener;
  * class GPSOfficeEventListener listens to the GPS office events.
  * 
  * @author Punit
+ * @version 04-05-2013
  * 
  */
 public class GPSOfficeEventListener implements
@@ -24,14 +25,15 @@ public class GPSOfficeEventListener implements
 	 */
 	private static final int LOST = 3;
 	/**
-	 * a <tt>boolean</tt> variable to check if the client has to shut down after package
-	 * is either lost or delivered
+	 * a <tt>boolean</tt> variable to check if the client has to shut down after
+	 * package is either lost or delivered
 	 */
 	private static boolean shutDown;
 
 	/**
-	 * Constructor which takes in a boolean which represents whether to shut down after package
-	 * is either lost or delivered, or not.
+	 * Constructor which takes in a boolean which represents whether to shut
+	 * down after package is either lost or delivered, or not.
+	 * 
 	 * @param shutDown
 	 */
 	public GPSOfficeEventListener(boolean shutDown) {

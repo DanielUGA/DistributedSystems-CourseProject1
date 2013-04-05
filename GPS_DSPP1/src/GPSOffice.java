@@ -24,6 +24,7 @@ import edu.rit.ds.registry.RegistryProxy;
  * Offices
  * 
  * @author Punit
+ * @version 04-05-2013
  * 
  */
 public class GPSOffice implements GPSOfficeRef {
@@ -172,7 +173,6 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
-	
 	/**
 	 * @param officeName
 	 *            name of the {@linkplain GPSOffice} to which the package is to
@@ -229,7 +229,6 @@ public class GPSOffice implements GPSOfficeRef {
 
 	}
 
-	
 	/**
 	 * Returns the name of the <TT>this</TT> office
 	 * 
@@ -242,7 +241,6 @@ public class GPSOffice implements GPSOfficeRef {
 		return name;
 	}
 
-	
 	/**
 	 * Returns the x and y (double) co-ordinates of <tt>this</tt> office
 	 * 
@@ -255,7 +253,6 @@ public class GPSOffice implements GPSOfficeRef {
 		return new double[] { x, y };
 	}
 
-	
 	/**
 	 * Returns the <TT>List</TT> of {@linkplain Neighbor}s of <TT>this</TT>
 	 * office
@@ -269,7 +266,6 @@ public class GPSOffice implements GPSOfficeRef {
 		return neighbors;
 	}
 
-	
 	/**
 	 * Sets the neighbors of <tt>this</tt> office
 	 * 
@@ -283,7 +279,6 @@ public class GPSOffice implements GPSOfficeRef {
 		neighbors = offices;
 	}
 
-	
 	/**
 	 * Add listener to the office
 	 * 
@@ -298,7 +293,6 @@ public class GPSOffice implements GPSOfficeRef {
 		return eventGenerator.addListener(listener);
 	}
 
-	
 	/**
 	 * Add listener to the office along with the filter
 	 * 
@@ -337,7 +331,6 @@ public class GPSOffice implements GPSOfficeRef {
 		return trackingNumber;
 	}
 
-	
 	/**
 	 * Examines the package (with a 3 seconds delay), generates neighbors and
 	 * finds out where the package should be sent next.

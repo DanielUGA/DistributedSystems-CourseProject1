@@ -9,9 +9,12 @@ import edu.rit.ds.registry.RegistryEventListener;
 import edu.rit.ds.registry.RegistryProxy;
 
 /**
- * class Headquarters represnts the Headquarters of the Geographic Package Service (GPS). 
- * It also listens to all the GPS office events and displays them.
+ * class Headquarters represnts the Headquarters of the Geographic Package
+ * Service (GPS). It also listens to all the GPS office events and displays
+ * them.
+ * 
  * @author Punit
+ * @version 04-05-2013
  * 
  */
 public class Headquarters {
@@ -23,6 +26,7 @@ public class Headquarters {
 
 	/**
 	 * Main Program. Takes the host and port values from command line.
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -34,7 +38,7 @@ public class Headquarters {
 
 		String host = args[0];
 		int port;
-		
+
 		// checks is the port is an Integer
 		try {
 			port = Integer.parseInt(args[1]);
@@ -42,7 +46,8 @@ public class Headquarters {
 			throw new NumberFormatException("Port has to be an Integer value");
 		}
 
-		// creates a registry listener to listens GPS Office binding in the registry
+		// creates a registry listener to listens GPS Office binding in the
+		// registry
 		try {
 			registry = new RegistryProxy(host, port);
 
@@ -54,7 +59,7 @@ public class Headquarters {
 			UnicastRemoteObject.exportObject(registryListener, 0);
 
 			officeListener = new GPSOfficeEventListener(false);
-			
+
 			UnicastRemoteObject.exportObject(officeListener, 0);
 
 			registryFilter = new RegistryEventFilter().reportType("GPSOffice")
@@ -73,7 +78,9 @@ public class Headquarters {
 
 	/**
 	 * Listens to all the office which are already bound to the registry
-	 * @param office name of the office
+	 * 
+	 * @param office
+	 *            name of the office
 	 */
 	private static void listenToOffice(String office) {
 

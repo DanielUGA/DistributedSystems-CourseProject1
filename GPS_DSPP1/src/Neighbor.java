@@ -4,6 +4,7 @@ import java.io.Serializable;
  * class Neighbor represents the neighbor of the GPS Office
  * 
  * @author Punit
+ * @version 04-05-2013
  * 
  */
 public class Neighbor implements Serializable {
@@ -13,8 +14,11 @@ public class Neighbor implements Serializable {
 
 	/**
 	 * Constructor takes GPS Office and distance from the source GPS office
-	 * @param office the neighbor office
-	 * @param dist distance between the offices
+	 * 
+	 * @param office
+	 *            the neighbor office
+	 * @param dist
+	 *            distance between the offices
 	 */
 	public Neighbor(GPSOfficeRef office, double dist) {
 		gpsOffice = office;
@@ -22,8 +26,9 @@ public class Neighbor implements Serializable {
 	}
 
 	/**
-	 *  Get the neighbor office
-	 * @return neighbor GPS office 
+	 * Get the neighbor office
+	 * 
+	 * @return neighbor GPS office
 	 */
 	public GPSOfficeRef getGpsOffice() {
 		return gpsOffice;
@@ -31,7 +36,9 @@ public class Neighbor implements Serializable {
 
 	/**
 	 * Set the neighbor GPS office
-	 * @param gpsOffice GPS office to be set
+	 * 
+	 * @param gpsOffice
+	 *            GPS office to be set
 	 */
 	public void setGpsOffice(GPSOfficeRef gpsOffice) {
 		this.gpsOffice = gpsOffice;
@@ -39,6 +46,7 @@ public class Neighbor implements Serializable {
 
 	/**
 	 * Get the distance between the Offices
+	 * 
 	 * @return distance
 	 */
 	public double getDistance() {
@@ -47,7 +55,9 @@ public class Neighbor implements Serializable {
 
 	/**
 	 * Set the distance between the Offices
-	 * @param distance distance to be set
+	 * 
+	 * @param distance
+	 *            distance to be set
 	 */
 	public void setDistance(double distance) {
 		this.distance = distance;

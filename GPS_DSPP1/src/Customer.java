@@ -12,7 +12,7 @@ import edu.rit.ds.registry.RegistryProxy;
  * destination.
  * 
  * @author Punit
- * @version 04-04-2013
+ * @version 04-05-2013
  * 
  */
 public class Customer {
@@ -29,7 +29,8 @@ public class Customer {
 	 * Office), X(x co-ordinate of the destination), Y(y co-ordinate of the
 	 * destination)
 	 * 
-	 * @param args command line arguments
+	 * @param args
+	 *            command line arguments
 	 */
 	public static void main(String[] args) {
 
@@ -41,7 +42,7 @@ public class Customer {
 		String host = args[0];
 		origin = args[2];
 		int port = 0;
-		
+
 		// Check if the port is an Integer
 		try {
 			port = Integer.parseInt(args[1]);
@@ -63,7 +64,6 @@ public class Customer {
 
 		try {
 
-			
 			registry = new RegistryProxy(host, port);
 
 			officeListener = new GPSOfficeEventListener(true);
@@ -93,6 +93,7 @@ public class Customer {
 
 	/**
 	 * Display the correct usage of the class execution(command line arguments)
+	 * 
 	 * @return void
 	 */
 	private static void showUsage() {
