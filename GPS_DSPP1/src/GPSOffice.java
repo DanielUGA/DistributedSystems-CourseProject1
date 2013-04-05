@@ -35,7 +35,6 @@ public class GPSOffice implements GPSOfficeRef {
 	private RegistryProxy registry;
 	private static RemoteEventGenerator<GPSOfficeEvent> eventGenerator;
 	private ScheduledExecutorService reaper;
-	public static String latestOffice;
 
 	/**
 	 * This constructor takes values from the command line and binds the office
@@ -224,20 +223,15 @@ public class GPSOffice implements GPSOfficeRef {
 			}
 
 		} catch (RemoteException e) {
-			// System.out.println("here");
-			// System.out.println(latestOffice);
-			// System.out.println(officeName);
-			if (latestOffice == officeName) {
-				// e.printStackTrace();
-				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
-						trackingNumber, x2, y2, 3));
-			}
+			System.out.println("here");
+			System.out.println(officeName);
+			// e.printStackTrace();
+			eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+					trackingNumber, x2, y2, 3));
 		} catch (Exception e) {
-			if (latestOffice == officeName) {
-				// e.printStackTrace();
-				eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
-						trackingNumber, x2, y2, 3));
-			}
+			// e.printStackTrace();
+			eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+					trackingNumber, x2, y2, 3));
 		}
 
 	}
@@ -340,7 +334,7 @@ public class GPSOffice implements GPSOfficeRef {
 					eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 							trackingNumber, x2, y2, 3));
 				} catch (InterruptedException e) {
-					//e.printStackTrace();
+					// e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 							trackingNumber, x2, y2, 3));
 				}
@@ -366,7 +360,7 @@ public class GPSOffice implements GPSOfficeRef {
 	 * @return void
 	 * @throws RemoteException
 	 *             exception thrown in the Remote object is not available
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void examinePackage(long trackingNumber, final double x2,
@@ -377,12 +371,11 @@ public class GPSOffice implements GPSOfficeRef {
 		addListener(officeListener, filter);
 		eventGenerator.reportEvent(new GPSOfficeEvent(this.getGPSOfficeName(),
 				trackingNumber, x2, y2, 1));
-		latestOffice = this.name;
 
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e1) {
-			//e1.printStackTrace();
+			// e1.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(this
 					.getGPSOfficeName(), trackingNumber, x2, y2, 3));
 			throw e1;
