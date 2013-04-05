@@ -30,6 +30,8 @@ public class GPSOfficeEventListener implements
 	 */
 	private static boolean shutDown;
 
+	private static String arrivedAt;
+
 	/**
 	 * Constructor which takes in a boolean which represents whether to shut
 	 * down after package is either lost or delivered, or not.
@@ -47,15 +49,21 @@ public class GPSOfficeEventListener implements
 	 */
 	@Override
 	public void report(long arg0, GPSOfficeEvent event) throws RemoteException {
+		System.out.println(arrivedAt);
 
 		if (event.getStatus() == LOST) {
-			System.out.println("Package number " + event.getTrackingId()
-					+ " lost by " + event.getOfficeName() + " office");
-			if (shutDown)
-				System.exit(1);
+			System.out.println(arrivedAt);
+			System.out.println(event.getOfficeName());
+			if (arrivedAt.equals(event.getOfficeName())) {
+				System.out.println("Package number " + event.getTrackingId()
+						+ " lost by " + event.getOfficeName() + " office");
+				if (shutDown)
+					System.exit(1);
+			}
 		} else if (event.getStatus() == ARRIVED) {
 			System.out.println("Package number " + event.getTrackingId()
 					+ " arrived at " + event.getOfficeName() + " office");
+			arrivedAt = event.getOfficeName();
 		} else if (event.getStatus() == DEPARTED) {
 			System.out.println("Package number " + event.getTrackingId()
 					+ " departed from " + event.getOfficeName() + " office");
