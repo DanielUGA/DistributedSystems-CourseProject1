@@ -36,8 +36,8 @@ public class GPSOfficeEventListener implements
 	 * 
 	 * @param shutDown
 	 */
-	public GPSOfficeEventListener(boolean shutDown) {
-		this.shutDown = shutDown;
+	public GPSOfficeEventListener(boolean shut) {
+		shutDown = shut;
 	}
 
 	/*

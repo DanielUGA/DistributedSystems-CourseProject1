@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -178,11 +177,11 @@ public class GPSOffice implements GPSOfficeRef {
 		Collections.sort(gpsNeighbors, new NeighborComparator());
 
 		if (gpsNeighbors.size() == 1) {
-			neighbors = new ArrayList<>(gpsNeighbors.subList(0, 1));
+			neighbors = new ArrayList<Neighbor>(gpsNeighbors.subList(0, 1));
 		} else if (gpsNeighbors.size() == 2) {
-			neighbors = new ArrayList<>(gpsNeighbors.subList(0, 2));
+			neighbors = new ArrayList<Neighbor>(gpsNeighbors.subList(0, 2));
 		} else if (gpsNeighbors.size() >= 3) {
-			neighbors = new ArrayList<>(gpsNeighbors.subList(0, 3));
+			neighbors = new ArrayList<Neighbor>(gpsNeighbors.subList(0, 3));
 		}
 
 	}
@@ -336,14 +335,18 @@ public class GPSOffice implements GPSOfficeRef {
 			public void run() {
 				try {
 					examinePackage(trackingNumber, x2, y2, officeListener);
-				} catch (RemoteException | InterruptedException e) {
+				} catch (RemoteException e) {
 					// e.printStackTrace();
+					eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
+							trackingNumber, x2, y2, 3));
+				} catch (InterruptedException e) {
+					//e.printStackTrace();
 					eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 							trackingNumber, x2, y2, 3));
 				}
 			}
 
-		}, 0, TimeUnit.SECONDS);
+		}, 0l, TimeUnit.SECONDS);
 
 		return trackingNumber;
 	}

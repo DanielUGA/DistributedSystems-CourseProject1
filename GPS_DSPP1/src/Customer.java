@@ -20,7 +20,6 @@ public class Customer {
 	private static String origin;
 	private static double x;
 	private static double y;
-	private static long trackingNumber;
 	private static RegistryProxy registry;
 	private static RemoteEventListener<GPSOfficeEvent> officeListener;
 
@@ -72,7 +71,7 @@ public class Customer {
 
 			// Look up the origin Office specified by the user
 			GPSOfficeRef gpsOffice = (GPSOfficeRef) registry.lookup(origin);
-			trackingNumber = gpsOffice.checkPackage(x, y, officeListener);
+			gpsOffice.checkPackage(x, y, officeListener);
 
 		} catch (RemoteException e) {
 			System.err.println("No Remote Server at host=" + host
