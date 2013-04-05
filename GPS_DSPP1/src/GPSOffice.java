@@ -208,7 +208,7 @@ public class GPSOffice implements GPSOfficeRef {
 	}
 
 	@Override
-	public long checkPackage(long trackingNumber, final double x2,
+	public synchronized long checkPackage(long trackingNumber, final double x2,
 			final double y2,
 			final RemoteEventListener<GPSOfficeEvent> officeListener)
 			throws RemoteException, NotBoundException, InterruptedException {
