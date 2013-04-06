@@ -31,8 +31,6 @@ public class GPSOfficeEventListener implements
 	 */
 	private static boolean shutDown;
 
-	private static String arrivedAt;
-
 	private static HashMap<Long, String> arrivalMap;
 
 	/**
@@ -67,7 +65,6 @@ public class GPSOfficeEventListener implements
 		} else if (event.getStatus() == ARRIVED) {
 			System.out.println("Package number " + event.getTrackingId()
 					+ " arrived at " + event.getOfficeName() + " office");
-			arrivedAt = event.getOfficeName();
 			arrivalMap.put(event.getTrackingId(), event.getOfficeName());
 		} else if (event.getStatus() == DEPARTED) {
 			System.out.println("Package number " + event.getTrackingId()
