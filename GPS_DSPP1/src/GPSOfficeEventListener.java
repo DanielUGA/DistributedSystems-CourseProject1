@@ -1,4 +1,5 @@
 import java.rmi.RemoteException;
+import java.util.HashMap;
 
 import edu.rit.ds.RemoteEventListener;
 
@@ -32,6 +33,8 @@ public class GPSOfficeEventListener implements
 
 	private static String arrivedAt;
 
+	private static HashMap<Long, String> arrivalMap;
+
 	/**
 	 * Constructor which takes in a boolean which represents whether to shut
 	 * down after package is either lost or delivered, or not.
@@ -40,6 +43,7 @@ public class GPSOfficeEventListener implements
 	 */
 	public GPSOfficeEventListener(boolean shut) {
 		shutDown = shut;
+		arrivalMap = new HashMap<Long,String>();
 	}
 
 	/*
@@ -49,12 +53,12 @@ public class GPSOfficeEventListener implements
 	 */
 	@Override
 	public void report(long arg0, GPSOfficeEvent event) throws RemoteException {
-		System.out.println(arrivedAt);
 
 		if (event.getStatus() == LOST) {
-			System.out.println(arrivedAt);
-			System.out.println(event.getOfficeName());
-			if (arrivedAt.equals(event.getOfficeName())) {
+			if (arrivalMap.containsKey(event.getTrackingId())
+					&& arrivalMap.get(event.getTrackingId()).equals(
+							event.getOfficeName())) {
+				arrivalMap.remove(event.getTrackingId());
 				System.out.println("Package number " + event.getTrackingId()
 						+ " lost by " + event.getOfficeName() + " office");
 				if (shutDown)
@@ -64,10 +68,12 @@ public class GPSOfficeEventListener implements
 			System.out.println("Package number " + event.getTrackingId()
 					+ " arrived at " + event.getOfficeName() + " office");
 			arrivedAt = event.getOfficeName();
+			arrivalMap.put(event.getTrackingId(), event.getOfficeName());
 		} else if (event.getStatus() == DEPARTED) {
 			System.out.println("Package number " + event.getTrackingId()
 					+ " departed from " + event.getOfficeName() + " office");
 		} else {
+			arrivalMap.remove(event.getTrackingId());
 			System.out.println("Package number " + event.getTrackingId()
 					+ " delivered from " + event.getOfficeName()
 					+ " office to " + "(" + event.getX() + "," + event.getY()

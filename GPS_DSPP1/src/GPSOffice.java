@@ -223,8 +223,6 @@ public class GPSOffice implements GPSOfficeRef {
 			}
 
 		} catch (RemoteException e) {
-			System.out.println("here");
-			System.out.println(officeName);
 			// e.printStackTrace();
 			eventGenerator.reportEvent(new GPSOfficeEvent(officeName,
 					trackingNumber, x2, y2, 3));
